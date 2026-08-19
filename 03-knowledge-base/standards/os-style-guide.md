@@ -44,7 +44,11 @@ Mensagens de validação, erro, confirmação ou notificação devem ser reprodu
 
 ### 9. Incerteza
 
-Toda incerteza deve ser marcada com um dos três marcadores padronizados: `[OPEN_QUESTION: ...]` para lacunas a esclarecer, `[INFERENCE: ...]` para conclusões razoáveis não confirmadas explicitamente, `[CONFLICT: ...]` para contradições entre insumos. Esses marcadores nunca devem ser omitidos ou escondidos durante a elaboração do documento para "parecer mais completo". Uma OS aprovada pelo `os-validator-agent` não deve conter marcadores bloqueantes sem resolução — mas durante a redação, marcar a incerteza é sempre preferível a resolvê-la silenciosamente.
+Toda incerteza deve ser marcada com um dos marcadores padronizados: `[OPEN_QUESTION: ...]` para lacunas a esclarecer, `[DISCOVERY_ITEM: ...]` para informação cuja descoberta já está prevista para uma etapa futura, `[INFERENCE: ...]` para conclusões razoáveis não confirmadas explicitamente, `[CONFLICT: ...]` para contradições entre insumos. Esses marcadores nunca devem ser omitidos ou escondidos durante a elaboração do documento para "parecer mais completo". Uma OS aprovada pelo `os-validator-agent` não deve conter marcadores bloqueantes sem resolução — mas durante a redação, marcar a incerteza é sempre preferível a resolvê-la silenciosamente.
+
+`[OPEN_QUESTION: ...]` e `[DISCOVERY_ITEM: ...]` não são a mesma coisa e não devem ser escolhidos por conveniência de redação. Use `[OPEN_QUESTION: ...]` quando a informação precisa ser respondida para fechar a especificação. Use `[DISCOVERY_ITEM: ...]` apenas quando os insumos já preverem, de forma explícita, uma etapa (Discovery, Engenharia Reversa, Refinamento, Levantamento técnico, Mapeamento, Validação em ambiente, inspeção de sistema existente) responsável por essa descoberta — ver `OS-UNCERTAINTY-004`.
+
+Ao redigir um `[DISCOVERY_ITEM: ...]`, o texto deve deixar claro: o que ainda será descoberto; quando ou em qual etapa; e, quando aplicável, por que isso pode ser diferido — sem apresentar o resultado futuro como se já fosse conhecido. Evite frases vagas como "Será analisado futuramente." ou "A definir." Prefira uma descrição objetiva e específica, por exemplo: `[DISCOVERY_ITEM: mapear durante a Engenharia Reversa a chave física utilizada para relacionamento entre os registros.]`
 
 ### 10. Premissas e dependências
 
@@ -169,6 +173,7 @@ Os exemplos abaixo são inteiramente fictícios e genéricos — não fazem refe
 9. **Incerteza escondida:** omitir `[OPEN_QUESTION: ...]`, `[INFERENCE: ...]` ou `[CONFLICT: ...]` para que o documento "pareça" mais completo ou definitivo do que os insumos permitem.
 10. **Regra repetida:** declarar a mesma regra funcional em mais de uma seção com o risco de as versões divergirem em revisões futuras.
 11. **Linguagem promocional:** usar adjetivos de valor comercial ("solução robusta", "melhoria expressiva", "experiência aprimorada") em vez de descrever o comportamento concreto.
+12. **Discovery Item vago ou indevido:** redigir `[DISCOVERY_ITEM: ...]` com frase genérica que não diz o que será descoberto nem quando ("será analisado futuramente"); ou usar `[DISCOVERY_ITEM: ...]` para uma decisão de negócio, regra, mensagem obrigatória, integração ou conflito entre fontes que na verdade exige `[OPEN_QUESTION: ...]` ou `[CONFLICT: ...]`.
 
 ## Relação com os outros artefatos
 

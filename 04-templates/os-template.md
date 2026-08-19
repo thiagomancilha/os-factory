@@ -189,13 +189,15 @@ seção pode permanecer sem valores confirmados.
 
 Durante a elaboração, use os marcadores padronizados sempre que necessário:
 
-- `[OPEN_QUESTION: ...]` — lacuna a esclarecer.
+- `[OPEN_QUESTION: ...]` — lacuna a esclarecer, cuja resposta é necessária para fechar a especificação.
+- `[DISCOVERY_ITEM: ...]` — informação ainda não conhecida, mas cuja descoberta já está prevista pelos insumos como parte de uma etapa futura (Discovery, Engenharia Reversa, Refinamento, Levantamento técnico, Mapeamento, Validação em ambiente, inspeção de sistema existente). Não é a mesma coisa que `OPEN_QUESTION` — ver OS-UNCERTAINTY-004. Não há seção obrigatória de "Discovery Items" nesta OS; o marcador aparece onde for funcionalmente relevante.
 - `[INFERENCE: ...]` — conclusão razoável, ainda não confirmada explicitamente.
 - `[CONFLICT: ...]` — contradição entre insumos.
 
 Eles são temporários: uma OS classificada como `PASS` pelo `os-validator-agent`
 não deve conter condição bloqueante ainda não resolvida (ver OS-UNCERTAINTY-001
-a 003 e OS-QA-001).
+a 004 e OS-QA-001). Um `DISCOVERY_ITEM` válido e controlado não é, por si só,
+uma condição bloqueante.
 
 ## Relação com o DOCX
 

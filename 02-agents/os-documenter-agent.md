@@ -148,11 +148,17 @@ O documento deve:
 
 ## Tratamento de lacunas
 
-O documentador **não pode** resolver `OPEN_QUESTION` por conta própria.
+O documentador **não pode** resolver `OPEN_QUESTION` por conta própria, nem `DISCOVERY_ITEM`.
 
 Quando uma questão em aberto impedir a redação correta de uma parte do documento, utilizar:
 
 `[OPEN_QUESTION: descrição objetiva da informação pendente]`
+
+Quando o `functional-analysis.md` trouxer um item já classificado como `DISCOVERY_ITEM` (informação cuja descoberta já está prevista para uma etapa futura — Discovery, Engenharia Reversa, Refinamento, Levantamento técnico, Mapeamento, Validação em ambiente, inspeção de sistema existente), e esse item for relevante para a compreensão da OS, utilizar:
+
+`[DISCOVERY_ITEM: descrição objetiva do que será descoberto, evitando frases vagas como "será analisado futuramente"]`
+
+O documentador não decide se um item é `OPEN_QUESTION` ou `DISCOVERY_ITEM` — essa classificação já vem do `functional-analysis.md`. O documentador apenas preserva a classificação recebida e a expressa de forma clara na seção correspondente da OS, sem apresentar o resultado da descoberta futura como se já fosse conhecido.
 
 Quando existir uma inferência relevante ainda não confirmada:
 
@@ -162,7 +168,7 @@ Quando existir conflito não resolvido:
 
 `[CONFLICT: descrição]`
 
-Esses marcadores devem permanecer visíveis para o agente de revisão posterior.
+Esses marcadores devem permanecer visíveis para o agente de revisão posterior. Não existe uma seção obrigatória de "Discovery Items" na OS final — cada `[DISCOVERY_ITEM: ...]` deve aparecer dentro da seção onde é funcionalmente relevante (Escopo, Premissas e Dependências, etc.), da mesma forma que `[OPEN_QUESTION: ...]` já funciona hoje.
 
 ## Rastreabilidade
 

@@ -85,6 +85,11 @@ Validar somente quando houver integração aplicável à demanda:
 - [ ] Toda `OPEN_QUESTION` relevante permanece visível até ser respondida por fonte válida. (OS-UNCERTAINTY-002)
 - [ ] Todo `CONFLICT` identificado permanece visível até resolução explícita. (OS-UNCERTAINTY-003)
 - [ ] Nenhuma lacuna foi fechada silenciosamente. (OS-UNCERTAINTY-002 / OS-UNCERTAINTY-003)
+- [ ] `OPEN_QUESTION` e `DISCOVERY_ITEM` foram classificados corretamente, sem uma classificação absorver a outra. (OS-UNCERTAINTY-004)
+- [ ] Todo `DISCOVERY_ITEM` possui evidência de que sua resolução faz parte de uma etapa prevista (Discovery, Engenharia Reversa, Refinamento, Levantamento técnico, Mapeamento, Validação em ambiente, inspeção de sistema existente). (OS-UNCERTAINTY-004)
+- [ ] Está claro em qual etapa cada `DISCOVERY_ITEM` será resolvido. (OS-UNCERTAINTY-004)
+- [ ] Nenhum `DISCOVERY_ITEM` está escondendo uma decisão funcional, de negócio ou arquitetural ainda necessária para fechar a especificação. (OS-UNCERTAINTY-004)
+- [ ] Nenhum `DISCOVERY_ITEM` pode alterar materialmente o escopo sem tratamento explícito (fallback ou condição de resolução registrada). (OS-UNCERTAINTY-004)
 
 ## 10. Esforço
 
@@ -144,7 +149,8 @@ A OS deve ser classificada como `BLOCKED` se existir pelo menos uma das condiç�
 - [ ] `CONFLICT` funcional relevante não resolvido. (OS-UNCERTAINTY-003 / OS-QA-001)
 - [ ] Regra necessária para implementação ainda indefinida. (OS-QA-001)
 - [ ] Esforço inventado ou sem origem válida. (OS-EFFORT-001 / OS-QA-001)
-- [ ] Violação relevante de privacidade (dado de cliente em área versionada). (OS-PRIVACY-001 / OS-PRIVACY-002)
+- [ ] `DISCOVERY_ITEM` sem etapa de resolução prevista, mascarando decisão de negócio pendente, ou correspondendo na prática a um conflito entre fontes. (OS-UNCERTAINTY-004 / OS-QA-001)
+- [ ] Violação relevante de privacidade (dado de cliente em área versionada). (OS-PRIVACY-001 / OS-PRIVACY-002 / OS-PRIVACY-003)
 
 Qualquer uma dessas condições, isoladamente, é suficiente para bloquear a aprovação — não é necessário acumular mais de uma.
 
@@ -173,6 +179,7 @@ Versão resumida para uso rápido, após a verificação completa acima já ter 
 - [ ] Não Escopo suportado
 - [ ] Nenhuma inferência apresentada como fato
 - [ ] Open Questions tratadas corretamente
+- [ ] Discovery Items classificados corretamente, sem mascarar decisão pendente
 - [ ] Conflitos explicitados
 - [ ] Esforço não inventado
 - [ ] Terminologia consistente

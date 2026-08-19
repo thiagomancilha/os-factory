@@ -312,7 +312,7 @@ Cada regra registra uma origem:
 
 ---
 
-## OS-UNCERTAINTY — Tratamento de OPEN_QUESTION, INFERENCE e CONFLICT
+## OS-UNCERTAINTY — Tratamento de OPEN_QUESTION, DISCOVERY_ITEM, INFERENCE e CONFLICT
 
 ### OS-UNCERTAINTY-001 — Separação entre fato e interpretação
 
@@ -320,7 +320,7 @@ Cada regra registra uma origem:
 
 **Objetivo:** Impedir que uma interpretação razoável seja lida como se fosse um fato confirmado.
 
-**Regra:** `INFERENCE` nunca pode ser apresentada como `FACT`. Toda informação relevante deve ser classificada como `FACT`, `INFERENCE`, `OPEN_QUESTION` ou `CONFLICT`, conforme já definido nos agentes de intake e análise funcional.
+**Regra:** `INFERENCE` nunca pode ser apresentada como `FACT`. Toda informação relevante deve ser classificada como `FACT`, `INFERENCE`, `OPEN_QUESTION`, `DISCOVERY_ITEM` ou `CONFLICT`, conforme já definido nos agentes de intake e análise funcional (ver `OS-UNCERTAINTY-004` para o critério específico de `DISCOVERY_ITEM`).
 
 **Evitar:** Redigir uma inferência com o mesmo tom afirmativo de um fato; omitir a marcação de incerteza "para o documento parecer mais pronto".
 
@@ -336,7 +336,7 @@ Cada regra registra uma origem:
 
 **Regra:** Lacunas relevantes devem permanecer explícitas, como `OPEN_QUESTION`, até serem efetivamente respondidas por uma fonte válida. Nenhum agente pode remover uma `OPEN_QUESTION` apenas para tornar a análise ou a OS aparentemente completa.
 
-**Evitar:** Fechar uma `OPEN_QUESTION` por inferência silenciosa; omitir uma `OPEN_QUESTION` da versão final da OS só porque ela não foi respondida a tempo.
+**Evitar:** Fechar uma `OPEN_QUESTION` por inferência silenciosa; omitir uma `OPEN_QUESTION` da versão final da OS só porque ela não foi respondida a tempo; reclassificar uma `OPEN_QUESTION` como `DISCOVERY_ITEM` apenas para que ela pareça resolvida ou para evitar bloqueio na validação (ver `OS-UNCERTAINTY-004`).
 
 **Justificativa:** É regra explícita do `os-functional-analyst-agent` e do `os-documenter-agent`, e é o oposto direto do que se observou nos modelos reais analisados (documentos finais homologados, sem nenhuma marcação de incerteza) — a `.osFactory` decide, deliberadamente, expor a incerteza em vez de escondê-la.
 
@@ -355,6 +355,20 @@ Cada regra registra uma origem:
 **Justificativa:** Resolver conflito silenciosamente equivale a inventar qual fonte é confiável — viola `OS-CORE-001` por decisão indireta.
 
 **Origem:** `AGENT_CONTRACT`
+
+### OS-UNCERTAINTY-004 — DISCOVERY_ITEM: diferimento controlado
+
+**Classificação:** `MUST`
+
+**Objetivo:** Distinguir formalmente uma lacuna que precisa ser respondida para fechar a especificação (`OPEN_QUESTION`) de uma informação cuja descoberta já está prevista, pelos próprios insumos, como parte de uma etapa futura do trabalho — evitando tanto o bloqueio desnecessário de demandas com fase de descoberta legítima quanto o uso indevido da classificação para mascarar decisões pendentes.
+
+**Regra:** Uma pendência só pode ser classificada como `DISCOVERY_ITEM` quando todos os critérios abaixo forem satisfeitos: (1) existe evidência nos insumos de que uma etapa de descoberta, engenharia reversa ou refinamento faz parte do trabalho; (2) a informação pendente é exatamente do tipo que essa etapa está prevista para descobrir; (3) a ausência dessa informação não impede definir o objetivo e o limite funcional atual da demanda; (4) a informação não está sendo simplesmente omitida por falta de levantamento; (5) existe clareza suficiente sobre quando ou em qual etapa ela será resolvida. Quando possível, registrar também: etapa responsável pela descoberta, impacto esperado, condição de resolução e fallback conhecido (sem inventar um fallback que os insumos não definem). `DISCOVERY_ITEM` não é bloqueante automaticamente: o `os-validator-agent` deve avaliar cada item individualmente conforme o critério definido em seu próprio contrato, podendo manter `PASS` ou `PASS_WITH_WARNINGS` quando o item for válido e controlado, ou reclassificá-lo como `OPEN_QUESTION`/`CONFLICT` (gerando finding, e `BLOCKED` se crítico) quando não for.
+
+**Evitar:** Classificar como `DISCOVERY_ITEM` uma decisão sobre comportamento do sistema, regra de negócio, cenário de escopo, mensagem obrigatória, integração, fonte contraditória a adotar, ou opção arquitetural necessária para fechar a contratação; transformar uma `OPEN_QUESTION` em `DISCOVERY_ITEM` apenas para que a OS passe pela validação; tratar um `CONFLICT` entre fontes como `DISCOVERY_ITEM`; inventar um fallback não suportado pelos insumos.
+
+**Justificativa:** Identificada no primeiro teste ponta a ponta real da `.osFactory`: o vocabulário `FACT`/`INFERENCE`/`OPEN_QUESTION`/`CONFLICT` não distinguia uma lacuna que exige decisão humana de uma informação deliberadamente diferida para uma etapa de descoberta já prevista no próprio escopo da demanda (por exemplo, engenharia reversa de um banco legado). Sem essa distinção, demandas legitimamente exploratórias corriam o risco de ser bloqueadas por pendências que, na verdade, já fazem parte do trabalho planejado.
+
+**Origem:** `QUALITY_IMPROVEMENT`
 
 ---
 
@@ -398,9 +412,9 @@ Cada regra registra uma origem:
 
 **Objetivo:** Definir, de forma objetiva, quando uma OS não pode ser considerada pronta.
 
-**Regra:** A OS não pode ser considerada pronta quando houver: requisito sem rastreabilidade (`UNTRACEABLE_REQUIREMENT`); ampliação de escopo não confirmada; conflito funcional relevante não resolvido; `OPEN_QUESTION` crítica ainda sem resposta; regra necessária para implementação ainda indefinida; ou esforço inventado/sem origem válida.
+**Regra:** A OS não pode ser considerada pronta quando houver: requisito sem rastreabilidade (`UNTRACEABLE_REQUIREMENT`); ampliação de escopo não confirmada; conflito funcional relevante não resolvido; `OPEN_QUESTION` crítica ainda sem resposta; regra necessária para implementação ainda indefinida; esforço inventado/sem origem válida; ou `DISCOVERY_ITEM` que não atenda aos critérios de `OS-UNCERTAINTY-004` (sem etapa de resolução prevista, mascarando decisão de negócio, ou correspondendo na prática a um conflito entre fontes). Um `DISCOVERY_ITEM` válido e controlado, por si só, não é condição de bloqueio.
 
-**Evitar:** Marcar uma OS como concluída "com ressalvas" quando uma dessas condições ainda está presente; tratar essas condições como sugestões em vez de bloqueio.
+**Evitar:** Marcar uma OS como concluída "com ressalvas" quando uma dessas condições ainda está presente; tratar essas condições como sugestões em vez de bloqueio; bloquear automaticamente uma OS só por conter `DISCOVERY_ITEM` válido; aceitar um `DISCOVERY_ITEM` sem evidência de etapa prevista como se não bloqueasse.
 
 **Justificativa:** É a formalização, neste arquivo, das condições de classificação `BLOCKED` já definidas no `os-validator-agent` — reunidas aqui para que qualquer agente, não só o validador, saiba reconhecer esses sinais de bloqueio antes mesmo da etapa de validação.
 

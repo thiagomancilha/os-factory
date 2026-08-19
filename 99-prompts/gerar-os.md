@@ -130,7 +130,7 @@ A OS pode ser apresentada como:
 
 **PASS_WITH_WARNINGS**
 
-A OS pode ser apresentada, mas o orquestrador deve mostrar claramente os warnings existentes.
+A OS pode ser apresentada, mas o orquestrador deve mostrar claramente os warnings existentes, incluindo eventuais `DISCOVERY_ITEM` válidos e controlados (não bloqueantes por si só, mas informados por transparência).
 
 Status: `OS pronta para revisão humana com ressalvas.`
 
@@ -142,6 +142,7 @@ A OS **não** pode ser apresentada como finalizada. Mostrar:
 - `OPEN_QUESTION` críticas;
 - `CONFLICT`;
 - `UNTRACEABLE_REQUIREMENT`;
+- `DISCOVERY_ITEM` reclassificado como bloqueante (sem etapa de resolução prevista, mascarando decisão de negócio, ou correspondendo na prática a um conflito entre fontes — ver `OS-UNCERTAINTY-004`);
 - outras causas do bloqueio.
 
 Status: `OS bloqueada aguardando correções ou informações adicionais.`
@@ -186,9 +187,10 @@ Nunca corrigir automaticamente quando for necessário decidir ou inventar:
 - esforço;
 - premissa;
 - conflito entre fontes;
-- resposta a uma `OPEN_QUESTION`.
+- resposta a uma `OPEN_QUESTION`;
+- o conteúdo de um `DISCOVERY_ITEM` (a descoberta pertence à etapa prevista para isso, não ao orquestrador — antecipar essa informação seria inventar).
 
-Nesses casos, manter `BLOCKED` e solicitar informação ao usuário. Corrigir automaticamente uma dessas categorias violaria `OS-CORE-001` (não inventar requisitos).
+Nesses casos, manter `BLOCKED` e solicitar informação ao usuário. Corrigir automaticamente uma dessas categorias violaria `OS-CORE-001` (não inventar requisitos). Um `DISCOVERY_ITEM` válido e controlado não exige solicitar informação imediata ao usuário — ele só bloqueia se for reclassificado (ver seção 7).
 
 ## 10. Reexecução
 
@@ -235,9 +237,19 @@ Output:
 
 Validação:
 01-analysis/<demanda>/validation.md
+
+Open Questions:
+- ...
+
+Discovery Items:
+- ...
 ```
 
+`Open Questions` e `Discovery Items` devem ser apresentados em blocos separados — não são a mesma coisa (ver `OS-UNCERTAINTY-004`).
+
 Quando houver `OPEN_QUESTION`, apresentar as perguntas de maneira objetiva para que o usuário possa respondê-las.
+
+Quando houver `DISCOVERY_ITEM`, informar de forma resumida: quantidade; etapa prevista de resolução; e se há ou não impacto bloqueante. Não pedir ao usuário para responder imediatamente um `DISCOVERY_ITEM` válido — ele será resolvido na etapa já prevista para isso.
 
 Quando houver `BLOCKED`, deixar explícito por que o processo não pode ser considerado concluído.
 

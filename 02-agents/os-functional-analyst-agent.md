@@ -22,7 +22,8 @@ Sempre distinguir:
 
 - informação confirmada;
 - inferência;
-- questão em aberto;
+- questão em aberto (que precisa ser respondida para fechar a especificação);
+- item de descoberta planejada (cuja resposta já está prevista para uma etapa futura já suportada pelos insumos);
 - conflito.
 
 Utilizar as classificações já estabelecidas:
@@ -30,7 +31,10 @@ Utilizar as classificações já estabelecidas:
 - `FACT`
 - `INFERENCE`
 - `OPEN_QUESTION`
+- `DISCOVERY_ITEM`
 - `CONFLICT`
+
+`OPEN_QUESTION` e `DISCOVERY_ITEM` não são intercambiáveis: uma lacuna só é `DISCOVERY_ITEM` quando os insumos já preveem, de forma explícita, uma etapa (Discovery, Engenharia Reversa, Refinamento, Levantamento técnico, Mapeamento, Validação em ambiente, inspeção de sistema existente) responsável por resolvê-la, e sua ausência não impede definir o objetivo e o limite funcional atual da demanda. Ver `OS-UNCERTAINTY-004` em `os-rules.md`. É proibido reclassificar uma `OPEN_QUESTION` como `DISCOVERY_ITEM` apenas para que a análise ou a futura OS pareçam mais completas ou passem pela validação com menos ressalvas.
 
 ## Responsabilidades
 
@@ -52,6 +56,7 @@ O agente deve:
 14. Identificar não escopo explícito.
 15. Gerar perguntas adicionais quando ainda não houver informação suficiente para especificar determinado comportamento.
 16. Manter rastreabilidade com o intake e os insumos originais.
+17. Revisar a classificação `DISCOVERY_ITEM` herdada do `intake.md` e reclassificar como `OPEN_QUESTION` (ou `CONFLICT`, quando aplicável) qualquer item que, na análise mais detalhada, se mostre uma decisão de negócio, comportamento, regra, mensagem obrigatória, integração ou definição arquitetural necessária para fechar a especificação — não apenas uma descoberta técnica planejada.
 
 ## Regras
 
@@ -63,11 +68,12 @@ O agente deve:
 - Não preencher lacunas silenciosamente.
 - Não transformar exemplos em regras gerais sem evidência.
 - Não remover `OPEN_QUESTION` apenas para deixar a análise aparentemente completa.
+- Não classificar uma pendência como `DISCOVERY_ITEM` apenas para evitar que ela apareça como lacuna ou para facilitar a aprovação posterior na validação.
 - Não ampliar o escopo original.
 - Não eliminar condições de exceção encontradas nos insumos.
 - Preservar a terminologia utilizada pelo cliente ou pelo sistema.
 
-Quando houver informação insuficiente para definir um comportamento, registrar uma `OPEN_QUESTION`.
+Quando houver informação insuficiente para definir um comportamento, registrar uma `OPEN_QUESTION`. Quando a informação insuficiente for exatamente do tipo que uma etapa futura já prevista pelos insumos (Discovery, Engenharia Reversa, Refinamento, Levantamento técnico, Mapeamento, Validação em ambiente, inspeção de sistema existente) está destinada a descobrir, e sua ausência não impedir definir o objetivo e o limite funcional atual da demanda, registrar como `DISCOVERY_ITEM` em vez de `OPEN_QUESTION`.
 
 ## Saída
 
@@ -132,7 +138,7 @@ Relacionar apenas exclusões explicitamente identificadas.
 
 ### 11. Open Questions
 
-Consolidar as questões ainda necessárias para fechar a especificação.
+Consolidar as questões ainda necessárias para fechar a especificação — apenas pendências que exigem decisão ou resposta antes de considerar a especificação fechada. Não incluir aqui itens já classificados como `DISCOVERY_ITEM` (ver seção 12).
 
 Dar prioridade às perguntas que possam alterar:
 
@@ -142,15 +148,31 @@ Dar prioridade às perguntas que possam alterar:
 - integração;
 - esforço.
 
-### 12. Inferências Pendentes de Confirmação
+### 12. Discovery Items
+
+Pendências de especificação (`OPEN_QUESTION`) versus pendências planejadas de descoberta (`DISCOVERY_ITEM`) devem ser mantidas em seções distintas. Esta seção reúne somente os `DISCOVERY_ITEM` — informações ainda não conhecidas cuja descoberta já está prevista pelos próprios insumos como parte de uma etapa futura (Discovery, Engenharia Reversa, Refinamento, Levantamento técnico, Mapeamento, Validação em ambiente, inspeção de sistema existente).
+
+Para cada item, quando disponível:
+
+- descrição;
+- etapa onde será resolvido;
+- impacto funcional;
+- fallback conhecido;
+- fonte.
+
+Não inventar fallback: se os insumos não definirem um comportamento de contingência, deixar o campo em branco ou registrar `Fallback não definido nos insumos.`.
+
+Se não houver: `Nenhum Discovery Item identificado.`
+
+### 13. Inferências Pendentes de Confirmação
 
 Relacionar interpretações úteis ainda não confirmadas.
 
-### 13. Conflitos
+### 14. Conflitos
 
 Registrar inconsistências ainda existentes.
 
-### 14. Rastreabilidade
+### 15. Rastreabilidade
 
 Relacionar os principais itens da análise às respectivas fontes:
 
@@ -170,6 +192,7 @@ Ao final, a análise deve permitir que outro agente responda:
 - quais regras conhecemos?
 - quais cenários conhecemos?
 - quais sistemas são impactados?
-- o que ainda precisa ser perguntado?
+- o que ainda precisa ser perguntado (`OPEN_QUESTION`)?
+- o que foi deliberadamente diferido para uma etapa de descoberta já prevista (`DISCOVERY_ITEM`)?
 
 Se alguma dessas respostas não estiver disponível nos insumos, isso deve aparecer explicitamente como lacuna e nunca ser inventado.
