@@ -142,6 +142,18 @@ Quando aplicável:
 - [ ] Não existem nomes pessoais, números de contrato, identificadores reais ou prints de cliente em `02-agents/`, `03-knowledge-base/` ou `04-templates/`. (OS-PRIVACY-001 / OS-PRIVACY-002)
 - [ ] Exemplos versionados são genéricos/sanitizados, sem conteúdo proprietário desnecessário. (OS-PRIVACY-001)
 
+## 16. Condições Comerciais, status documental e aceite
+
+Quando aplicável (OS materializada em DOCX):
+
+- [ ] A OS possui um Código da OS (`OS-AAAA-NNNN`) atribuído pelo registry, estável entre regenerações. (OS-CODE-001)
+- [ ] Contratante e Executor exibidos correspondem aos defaults de `config/os-factory.json`, não a um valor inventado por script. (OS-CODE-002)
+- [ ] Horas contratadas, Valor total da OS e Forma/condição de pagamento só aparecem preenchidos quando há fonte válida nos insumos. (OS-EFFORT-001 / OS-QA-004)
+- [ ] Ausência de valor ou forma de pagamento está registrada como `OPEN_QUESTION`, nunca como `DISCOVERY_ITEM` nem inventada. (OS-QA-004)
+- [ ] `NOT_READY_FOR_ACCEPTANCE` não foi confundido com, nem transformado em, `FUNCTIONAL_BLOCKED`. (OS-QA-004)
+- [ ] Status documental é `Em elaboração` ou `Para aceite` de forma coerente com a prontidão calculada — nunca `Aprovada` sem confirmação explícita. (OS-CODE-003)
+- [ ] A seção ACEITE não declara que o aceite já ocorreu antes de haver confirmação explícita. (OS-CODE-003)
+
 ---
 
 ## Gate de aprovação
@@ -191,6 +203,8 @@ Versão resumida para uso rápido, após a verificação completa acima já ter 
 - [ ] Discovery Items classificados corretamente, sem mascarar decisão pendente
 - [ ] Conflitos explicitados, com tipo definido (ou `CONFLICT_UNCLASSIFIED` justificado)
 - [ ] Esforço não inventado
+- [ ] Código da OS estável e condições comerciais sem valor inventado
+- [ ] Status documental e aceite nunca inferidos automaticamente
 - [ ] Terminologia consistente
 - [ ] Documento testável
 - [ ] Privacidade preservada

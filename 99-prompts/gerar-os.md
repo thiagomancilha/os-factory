@@ -260,6 +260,9 @@ Análise funcional: OK
 OS Markdown: GERADA
 Validação: PASS | PASS_WITH_WARNINGS | BLOCKED
 DOCX: GERADO | OUTPUT_BLOCKED | NÃO GERADO (FUNCTIONAL_BLOCKED)
+Código da OS: OS-<AAAA>-<NNNN>
+Acceptance readiness: READY_FOR_ACCEPTANCE | NOT_READY_FOR_ACCEPTANCE
+Document status: Em elaboração | Para aceite | Aprovada
 Auditoria visual: PASS | PASS_WITH_WARNINGS | OUTPUT_BLOCKED
 Renderização: OK | VISUAL_VALIDATION_NOT_EXECUTED (<dependência ausente>)
 
@@ -291,6 +294,8 @@ Quando houver `OPEN_QUESTION`, apresentar as perguntas de maneira objetiva para 
 Quando houver `DISCOVERY_ITEM`, informar de forma resumida: quantidade; etapa prevista de resolução; e se há ou não impacto bloqueante. Não pedir ao usuário para responder imediatamente um `DISCOVERY_ITEM` válido — ele será resolvido na etapa já prevista para isso.
 
 Quando houver `BLOCKED`, deixar explícito por que o processo não pode ser considerado concluído.
+
+Quando `Acceptance readiness` for `NOT_READY_FOR_ACCEPTANCE`, listar objetivamente as pendências reportadas pelo gerador (ex.: Valor da OS, Forma de pagamento) sob um rótulo "Pendências para aceite" — deixando claro que isso não é o mesmo que `BLOCKED` funcional (`OS-QA-004`): o DOCX já foi gerado normalmente, apenas o Status documental permanece `Em elaboração` até essas pendências serem resolvidas.
 
 ## 13. Regra de autoridade
 
@@ -332,9 +337,11 @@ python tools/build_os_docx.py \
   --validation-status PASS_WITH_WARNINGS
 ```
 
+O script resolve sozinho, sem intervenção do orquestrador: o Código da OS (via `tools/os_registry.py` / `01-analysis/_runtime/os-registry.json` — mesmo código em toda reexecução da mesma demanda, ver `OS-CODE-001`); Contratante, Executor, Autor e método de aceite (via `config/os-factory.json`, ver `OS-CODE-002`); e a prontidão para aceite (`READY_FOR_ACCEPTANCE` / `NOT_READY_FOR_ACCEPTANCE`, ver `OS-QA-004`), que define o Status documental (`Em elaboração` / `Para aceite`) exibido na capa. Use `--os-code` apenas quando o usuário confirmar explicitamente um código específico; use `--approved`/`--approved-by` apenas mediante confirmação explícita de aceite (`OS-CODE-003`) — nunca por padrão.
+
 Resultado do gerador:
 
-- `OK` → prosseguir para auditoria visual.
+- `OK` → prosseguir para auditoria visual. O stdout também informa Código da OS, Acceptance readiness e Document status — reportar isso ao usuário na seção 12.
 - `OUTPUT_BLOCKED` (template ausente, figura ausente, erro de geração) → reportar a causa exata; não inventar a figura nem prosseguir sem ela; não apresentar OS-<demanda>.md como "sem DOCX disponível por enquanto" — deixar claro que é uma falha de materialização, distinta de um problema funcional (`OS-QA-003`).
 - `FUNCTIONAL_BLOCKED` (o script recebeu `--validation-status BLOCKED`) → nunca deveria ocorrer se a seção 7 foi respeitada; se ocorrer, é um erro de orquestração a corrigir, não uma pendência de conteúdo.
 

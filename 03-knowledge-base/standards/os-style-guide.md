@@ -136,6 +136,22 @@ Esta seção detalha o que cada bloco da estrutura canônica (`OS-DOC-002`, `CAN
 
 **Não deve conter:** esforço estimado, calculado ou inferido pela `.osFactory` ou por qualquer agente. A `.osFactory` não calcula esforço (`OS-EFFORT-001`, `MUST`); quando o valor não estiver disponível, a célula ou o campo correspondente deve permanecer em branco ou marcado como `[OPEN_QUESTION: ...]`, nunca preenchido com uma estimativa criada pelo agente.
 
+### CONDIÇÕES COMERCIAIS
+
+**Objetivo:** registrar as condições comerciais mínimas da OS (horas contratadas, valor total, forma/condição de pagamento), quando essa informação estiver disponível nos insumos.
+
+**Deve conter:** campos no formato `- <Rótulo>: <valor>` (Horas contratadas / Valor total da OS / Forma ou condição de pagamento; opcionalmente Prazo de pagamento, Validade da OS, Início previsto, Prazo de execução, quando houver fonte), cada um citando ou remetendo à fonte quando não for óbvio.
+
+**Não deve conter:** valor, prazo ou forma de pagamento estimados/inferidos pela `.osFactory`. Quando a informação não constar dos insumos, o campo correspondente deve usar `` `[OPEN_QUESTION: ...]` `` — nunca `[DISCOVERY_ITEM: ...]` (a ausência de dado comercial/administrativo não é descoberta técnica, ver `OS-QA-004`) e nunca ficar em branco sem marcador, o que esconderia a lacuna em vez de sinalizá-la.
+
+### ACEITE
+
+**Objetivo:** informar como a OS pode ser formalmente aceita, sem declarar que o aceite já ocorreu.
+
+**Deve conter:** o método de aceite configurado (`E-mail`, na v1) e uma remissão ao código e à versão da OS (exibidos na capa e no Controle de versão — este texto não precisa, e não deve, repetir o código manualmente). Redação no tempo futuro/condicional ("poderá ser formalizado"), nunca no passado ou presente afirmativo de um aceite já ocorrido.
+
+**Não deve conter:** data de aceite, aprovador ou referência de aceite, a menos que exista confirmação explícita (`OS-CODE-003`) — nesse caso esses campos são preenchidos na capa pela materialização, não redigidos livremente pelo `os-documenter-agent`.
+
 ## Exemplos genéricos
 
 Os exemplos abaixo são inteiramente fictícios e genéricos — não fazem referência a nenhum cliente, sistema, projeto ou demanda real. Servem apenas para ilustrar o padrão de redação esperado.
@@ -177,6 +193,8 @@ Os exemplos abaixo são inteiramente fictícios e genéricos — não fazem refe
 11. **Linguagem promocional:** usar adjetivos de valor comercial ("solução robusta", "melhoria expressiva", "experiência aprimorada") em vez de descrever o comportamento concreto.
 12. **Discovery Item vago ou indevido:** redigir `[DISCOVERY_ITEM: ...]` com frase genérica que não diz o que será descoberto nem quando ("será analisado futuramente"); ou usar `[DISCOVERY_ITEM: ...]` para uma decisão de negócio, regra, mensagem obrigatória, integração ou conflito entre fontes que na verdade exige `[OPEN_QUESTION: ...]` ou um marcador de conflito.
 13. **Conflito reclassificado por conveniência:** usar `[ARCHITECTURAL_CONFLICT: ...]` ou `[DOCUMENTAL_CONFLICT: ...]` para uma divergência que na verdade é `[FUNCTIONAL_CONFLICT: ...]` (ou o inverso), apenas para reduzir a severidade do gate em vez de classificar pelo impacto real da divergência.
+14. **Condição comercial inventada ou mal classificada:** preencher Valor total da OS ou Forma de pagamento com um número/condição não informada pelos insumos; ou classificar a ausência desses campos como `[DISCOVERY_ITEM: ...]` em vez de `[OPEN_QUESTION: ...]`.
+15. **Aceite antecipado:** redigir a seção ACEITE (ou o Status documental) como se o aceite já tivesse ocorrido, sem confirmação explícita registrada.
 
 ## Relação com os outros artefatos
 

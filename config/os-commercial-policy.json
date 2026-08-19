@@ -1,0 +1,16 @@
+{
+  "_comment": "Política comercial padrão da Tria (v1). Nunca conter dado específico de cliente ou de demanda — apenas política institucional. Consumida por tools/os_commercial.py / tools/build_os_docx.py. Ver os-rules.md, OS-COMMERCIAL-001/002.",
+  "limite_horas_pagamento_padrao": 80,
+  "parcelas_padrao": [
+    {"marco": "no aceite da Ordem de Serviço", "percentual": 50},
+    {"marco": "na entrega final", "percentual": 50}
+  ],
+  "marcos_sugeridos_referencia": [
+    "aceite / kick-off",
+    "conclusão de Discovery",
+    "entrega da fase 1",
+    "entrega da fase 2",
+    "homologação",
+    "entrega final"
+  ]
+}

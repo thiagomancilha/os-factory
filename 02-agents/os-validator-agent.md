@@ -229,6 +229,15 @@ Avaliar se os comportamentos descritos possuem clareza suficiente para permitir 
 
 Não exigir formato formal de caso de teste.
 
+### 15. Condições Comerciais e Aceite (verificação estrutural apenas)
+
+O `os-validator-agent` valida apenas a **forma** das seções CONDIÇÕES COMERCIAIS e ACEITE, quando presentes:
+
+- ausência de valor/pagamento está corretamente marcada como `[OPEN_QUESTION: ...]`, não como `[DISCOVERY_ITEM: ...]` nem como estimativa inventada;
+- a seção ACEITE não declara aceite já ocorrido.
+
+O `os-validator-agent` **não** avalia se as condições comerciais estão completas o suficiente para envio ao aceite — essa é a avaliação de prontidão documental/comercial (`READY_FOR_ACCEPTANCE` / `NOT_READY_FOR_ACCEPTANCE`), calculada separadamente por `tools/build_os_docx.py` na materialização (`OS-QA-004`). Uma OS pode ser `PASS` ou `PASS_WITH_WARNINGS` funcionalmente mesmo com `Valor total da OS` ou `Forma de pagamento` ainda pendentes — isso nunca é motivo de `BLOCKED`.
+
 ## Regra de rastreabilidade
 
 Todo requisito funcional relevante da OS deve poder ser relacionado a pelo menos uma fonte:

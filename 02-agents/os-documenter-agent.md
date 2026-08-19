@@ -132,6 +132,23 @@ Se os insumos não fornecerem esforço:
 - não preencher horas fictícias;
 - utilizar marcador de pendência apropriado para revisão.
 
+### 7. CONDIÇÕES COMERCIAIS
+
+Registrar, apenas quando houver fonte válida nos insumos:
+
+- Horas contratadas;
+- Valor total da OS;
+- Forma / condição de pagamento;
+- Opcionalmente, quando houver fonte: Prazo de pagamento, Validade da OS, Início previsto, Prazo de execução.
+
+Se a informação não constar dos insumos, o campo correspondente usa `[OPEN_QUESTION: ...]` — nunca `[DISCOVERY_ITEM: ...]` (a ausência de valor/pagamento não é descoberta técnica) e nunca uma estimativa criada pelo agente (ver `OS-QA-004`).
+
+Código da OS, Contratante e Executor **não** são escritos nesta seção nem em nenhuma outra parte do Markdown pelo `os-documenter-agent` — são resolvidos e exibidos na capa exclusivamente pela materialização (`tools/build_os_docx.py`), a partir do registry local e de `config/os-factory.json` (`OS-CODE-001`, `OS-CODE-002`).
+
+### 8. ACEITE
+
+Redigir com o texto padrão informando o método de aceite configurado (E-mail, na v1), remetendo ao código e à versão da OS já exibidos na capa e no Controle de versão — sem repeti-los manualmente. Nunca redigir esta seção (ou qualquer outro campo) como se o aceite já tivesse ocorrido (`OS-CODE-003`). Data do aceite, Aprovado por e Referência do aceite não são de responsabilidade deste agente: só existem mediante confirmação explícita, aplicada na capa pela materialização.
+
 ## Regras de redação
 
 O documento deve:

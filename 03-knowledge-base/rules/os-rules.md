@@ -418,6 +418,96 @@ Cada regra registra uma origem:
 
 ---
 
+## OS-CODE — Identidade documental, código da OS e aceite
+
+### OS-CODE-001 — Código da OS é estável e nunca reatribuído
+
+**Classificação:** `MUST`
+
+**Objetivo:** Garantir que cada demanda tenha um código de OS (`OS-<AAAA>-<NNNN>`) rastreável, estável entre regenerações, e nunca reutilizado para outra demanda.
+
+**Regra:** O código da OS é resolvido por `tools/os_registry.py`, com a seguinte ordem de autoridade: (1) código explicitamente informado/confirmado pelo usuário (`--os-code`); (2) código já existente no registry local (`01-analysis/_runtime/os-registry.json`) para a mesma demanda; (3) geração automática do próximo sequencial do ano corrente. O sequencial reinicia a cada ano. Um código já atribuído a uma demanda nunca pode ser reatribuído a outra.
+
+**Evitar:** Gerar um novo código apenas porque a OS foi regenerada; permitir que dois demandas diferentes compartilhem o mesmo código; versionar o registry (ele é dado de runtime, não conhecimento de padrão — ver `OS-PRIVACY-003`).
+
+**Justificativa:** Um código de OS que muda a cada regeneração quebra a rastreabilidade documental e comercial (e-mails, aceite, cobrança) que o código deveria garantir.
+
+**Origem:** `QUALITY_IMPROVEMENT`
+
+### OS-CODE-002 — Configuração institucional é centralizada e nunca hardcoded por script
+
+**Classificação:** `MUST`
+
+**Objetivo:** Evitar que valores institucionais (Contratante, Executor, Autor, método de aceite) fiquem espalhados e divergentes entre scripts.
+
+**Regra:** Os defaults institucionais da factory (Contratante padrão, Executor padrão, Autor padrão, formato do código, método padrão de aceite) vivem exclusivamente em `config/os-factory.json`, versionado. `tools/build_os_docx.py` lê esse arquivo e aplica os valores na capa da OS. O campo Autor, quando existente no documento (por exemplo, na tabela de Controle de versão), é normalizado para o Autor padrão no momento da materialização — isto é uma exceção deliberada e documentada à regra geral de "nunca reescrever conteúdo" (ver `OS-CORE-002`), porque Autor/Executor/Contratante são metadados de controle documental, não conteúdo funcional.
+
+**Evitar:** Hardcodar "Thiago Mancilha", "Tria" ou "E-mail" diretamente em `tools/build_os_docx.py` ou em qualquer outro script; deixar o `os-documenter-agent` inventar um valor de Autor diferente do configurado.
+
+**Justificativa:** Centralizar em um único arquivo de configuração permite alterar esses defaults no futuro (por exemplo, um segundo executor) sem refatorar o gerador.
+
+**Origem:** `QUALITY_IMPROVEMENT`
+
+### OS-CODE-003 — Aceite e aprovação nunca são inferidos
+
+**Classificação:** `MUST_NOT`
+
+**Objetivo:** Impedir que a `.osFactory` declare, mesmo implicitamente, que uma OS foi aceita ou aprovada sem confirmação explícita.
+
+**Regra:** O Status documental da OS é sempre um entre `Em elaboração`, `Para aceite` ou `Aprovada`. `Em elaboração` e `Para aceite` podem ser calculados automaticamente a partir da prontidão documental/comercial (ver `OS-QA-004`). `Aprovada`, junto com Data do aceite, Aprovado por e Referência do aceite, só pode aparecer mediante confirmação explícita do usuário (`--approved` + `--approved-by`) — nunca inferido a partir de PASS funcional, de todas as condições comerciais estarem preenchidas, ou de qualquer outro sinal indireto. O método de aceite padrão da v1 é E-mail (ver `config/os-factory.json`), formalizado na seção ACEITE da OS com redação que nunca declara que o aceite já ocorreu antes de haver confirmação.
+
+**Evitar:** Marcar `Status: Aprovada` porque a validação funcional é `PASS`; preencher Data do aceite ou Aprovado por sem confirmação explícita; redigir a seção ACEITE de forma que pareça que o aceite já aconteceu.
+
+**Justificativa:** Aceite e aprovação têm efeito contratual/comercial — inferi-los automaticamente exporia a factory e o cliente a um risco que a `.osFactory` não tem competência para assumir sozinha.
+
+**Origem:** `QUALITY_IMPROVEMENT`
+
+---
+
+## OS-COMMERCIAL — Condição comercial: hierarquia e política padrão
+
+### OS-COMMERCIAL-001 — Hierarquia da condição comercial
+
+**Classificação:** `MUST`
+
+**Objetivo:** Garantir que Horas contratadas, Valor total da OS e Forma/condição de pagamento sejam sempre resolvidos pela mesma ordem de autoridade, nunca por decisão ad hoc de um script ou de uma OS específica.
+
+**Regra:** Cada campo comercial (Horas contratadas, Valor total da OS, Forma/condição de pagamento) é resolvido por `tools/os_commercial.py` segundo a seguinte ordem de autoridade, do mais para o menos autoritativo: (1) condição comercial explicitamente confirmada pelo usuário na execução corrente (`--horas-contratadas`, `--valor-total-os`, `--forma-pagamento-marcos`); (2) condição comercial específica presente e válida nos insumos/Markdown da OS (ausente de `OPEN_QUESTION`); (3) condição comercial já confirmada e registrada para a mesma OS em execução anterior (`01-analysis/_runtime/os-commercial.json`, dado de runtime, nunca versionado — ver `OS-PRIVACY-003`); (4) política comercial padrão da Tria (`config/os-commercial-policy.json`, ver `OS-COMMERCIAL-002`). Uma condição de nível mais autoritativo sempre substitui (supersede) uma de nível inferior para a mesma OS — isso nunca é tratado como `CONFLICT`, pois a hierarquia já resolve a precedência de forma determinística. Quando uma confirmação explícita substitui um valor antes presente nos insumos, o tratamento aplicado deve ficar rastreável exclusivamente em artefatos internos (ver `OS-COMMERCIAL-003`) — nunca na própria OS final —, e o documento fonte original nunca é alterado ou apagado.
+
+**Evitar:** Aplicar a política padrão da Tria quando os insumos já trazem uma condição específica; tratar uma confirmação explícita posterior como conflito com o insumo original; deixar um script aplicar sua própria ordem de precedência divergente desta.
+
+**Justificativa:** Sem uma hierarquia única e centralizada, cada regeneração da OS correria o risco de aplicar uma condição comercial diferente, ou de um script decidir por conta própria qual fonte prevalece — quebrando a previsibilidade que a `.osFactory` exige de toda informação comercial.
+
+**Origem:** `QUALITY_IMPROVEMENT`
+
+### OS-COMMERCIAL-002 — Política comercial padrão da Tria e distribuição por marcos
+
+**Classificação:** `MUST`
+
+**Regra:** A política comercial padrão da Tria vive exclusivamente em `config/os-commercial-policy.json`, versionado, e nunca contém dado específico de cliente ou de demanda — apenas política institucional (limite de horas para aplicação do padrão, parcelas padrão, marcos sugeridos de referência). Para serviços até o limite de horas definido na política (padrão: 80 horas), quando nenhuma condição comercial específica é fornecida (nem explícita, nem nos insumos, nem já registrada), aplica-se o padrão de parcelamento da política (padrão: 50% no aceite da OS, 50% na entrega final). Quando o valor total da OS está disponível, os valores de cada parcela são calculados automaticamente (`tools/os_commercial.compute_installments`, aritmética com `Decimal`), e a soma das parcelas sempre reconcilia exatamente com o valor total — a última parcela absorve qualquer resíduo de arredondamento. Para demandas acima do limite de horas da política, ou com múltiplas fases/marcos de execução relevantes (sinalizados explicitamente nos insumos, nunca inferidos por heurística de conteúdo), o parcelamento padrão 50/50 não é aplicado automaticamente — a factory sinaliza `PAYMENT_BY_MILESTONES_RECOMMENDED` e pode identificar marcos naturais já presentes no escopo (por exemplo: aceite/kick-off, conclusão de Discovery, entrega de fase, homologação, entrega final) apenas como referência, mas nunca inventa percentual, valor, número de parcelas ou condição de vencimento. Nesse caso, a Forma/condição de pagamento permanece `[OPEN_QUESTION: definir a distribuição do pagamento entre os marcos da Ordem de Serviço.]` até que uma condição específica seja fornecida.
+
+**Evitar:** Aplicar 50%/50% automaticamente acima do limite de horas da política ou quando há múltiplas fases relevantes; inventar percentual, valor, quantidade de parcelas ou condição de vencimento para pagamento por marcos; espalhar a política comercial (limite de horas, parcelas padrão) em mais de um script; deixar a soma das parcelas divergir do valor total por erro de arredondamento.
+
+**Justificativa:** Um padrão comercial centralizado e auditável evita tanto o retrabalho de decidir a forma de pagamento a cada OS quanto o risco de a factory inventar uma distribuição por marcos que só o time comercial pode legitimamente definir.
+
+**Origem:** `QUALITY_IMPROVEMENT`
+
+### OS-COMMERCIAL-003 — Documento externo apresenta apenas a condição comercial vigente
+
+**Classificação:** `MUST_NOT`
+
+**Objetivo:** Impedir que uma condição comercial superseded (por exemplo, uma estimativa de horas anterior a uma confirmação explícita do usuário) apareça no documento que será encaminhado para aceite, mesmo como nota de rastreabilidade ou justificativa de mudança.
+
+**Regra:** A OS final (Markdown em `05-output/<demanda>/` e o DOCX materializado a partir dele) apresenta, nas seções Identificação, ESFORÇO e CONDIÇÕES COMERCIAIS, exclusivamente a condição comercial vigente resolvida pela hierarquia (ver `OS-COMMERCIAL-001`). Quando uma condição comercial é substituída (um nível mais autoritativo supersede um nível inferior), o valor superseded nunca é citado no documento externo — nem como "valor anterior", nem como justificativa da mudança, nem em nota de rodapé ou parágrafo de "registro para rastreabilidade". A rastreabilidade da supersessão (valor anterior, fonte, valor vigente, data/forma da confirmação) é preservada exclusivamente em artefatos internos: `01-analysis/<demanda>/validation.md`, demais materiais de `01-analysis/<demanda>/`, e o registry de runtime (`01-analysis/_runtime/os-commercial.json`, campo `nota`) — nenhum dos quais é versionado fora do escopo previsto por `OS-PRIVACY-003`, nem incluído no documento final.
+
+**Evitar:** Escrever "substitui o valor de X informado em `<fonte>`" na OS final; manter um parágrafo de "registro para rastreabilidade interna" dentro do Markdown/DOCX que será entregue ao cliente; citar o nome de um insumo cujo valor comercial foi superseded, no contexto desse valor, dentro da OS final; remover ou alterar o insumo original só porque seu valor foi superseded (ver `OS-COMMERCIAL-001`).
+
+**Justificativa:** A OS final é um documento comercial externo, não um relatório de auditoria — expor uma estimativa antiga e já substituída introduz ambiguidade e risco de leitura equivocada por quem vai aceitar a Ordem de Serviço, mesmo quando a intenção é apenas transparência. A rastreabilidade interna (`validation.md`, `01-analysis/`, registry de runtime) já cumpre esse papel sem contaminar o documento externo.
+
+**Origem:** `QUALITY_IMPROVEMENT`
+
+---
+
 ## OS-QA — Validação e critérios bloqueantes
 
 ### OS-QA-001 — Condições que bloqueiam a conclusão da OS
@@ -459,6 +549,22 @@ Cada regra registra uma origem:
 **Evitar:** Reportar uma falha de template ausente ou figura ausente como se fosse uma pendência de conteúdo; reportar uma `OPEN_QUESTION` crítica não respondida como se fosse um problema de materialização; gerar um DOCX "mesmo assim" quando a validação funcional retornou `BLOCKED`, apresentando-o como documento final aprovado.
 
 **Justificativa:** A materialização DOCX introduziu uma nova classe de falha (visual/técnica) que não existia quando só havia Markdown. Sem essa separação explícita, um problema de geração de arquivo poderia ser tratado como se fosse um problema da especificação (ou o inverso), levando a correções na etapa errada do pipeline.
+
+**Origem:** `QUALITY_IMPROVEMENT`
+
+---
+
+### OS-QA-004 — Prontidão para aceite é separada do gate funcional
+
+**Classificação:** `MUST_NOT`
+
+**Objetivo:** Impedir que uma pendência comercial/documental (por exemplo, valor da OS ainda não informado) seja confundida com, ou transformada automaticamente em, uma falha funcional.
+
+**Regra:** A avaliação de prontidão para aceite (`READY_FOR_ACCEPTANCE` / `NOT_READY_FOR_ACCEPTANCE`, calculada por `tools/build_os_docx.py`) é estritamente separada do resultado da validação funcional (`PASS` / `PASS_WITH_WARNINGS` / `BLOCKED`, produzido pelo `os-validator-agent`). `NOT_READY_FOR_ACCEPTANCE` nunca transforma uma especificação funcionalmente válida em `FUNCTIONAL_BLOCKED`, e nunca impede a geração do DOCX — apenas mantém o Status documental como `Em elaboração` em vez de `Para aceite`. `READY_FOR_ACCEPTANCE` exige, cumulativamente: validação funcional diferente de `BLOCKED`; código da OS, versão, Contratante e Executor presentes; Horas contratadas, Valor total da OS e Forma/condição de pagamento presentes (sem `OPEN_QUESTION`); e DOCX materializado sem `OUTPUT_BLOCKED`. A ausência de valor ou de forma de pagamento nos insumos deve ser registrada como `OPEN_QUESTION` na seção CONDIÇÕES COMERCIAIS — nunca como `DISCOVERY_ITEM` (que é reservado a descoberta técnica com etapa de resolução prevista, ver `OS-UNCERTAINTY-004`) e nunca inventada.
+
+**Evitar:** Bloquear a geração do DOCX por falta de valor comercial; classificar ausência de valor/forma de pagamento como `DISCOVERY_ITEM`; tratar `READY_FOR_ACCEPTANCE` como sinônimo de aprovação (ver `OS-CODE-003`).
+
+**Justificativa:** A materialização introduziu uma OS com identidade comercial (valor, pagamento, aceite) além da especificação funcional pura — sem essa separação explícita, uma pendência puramente comercial poderia indevidamente barrar uma especificação funcional já pronta, ou o inverso.
 
 **Origem:** `QUALITY_IMPROVEMENT`
 

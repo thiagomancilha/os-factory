@@ -1,0 +1,9 @@
+{
+  "_comment": "Configuração institucional versionada da .osFactory (v1). Nunca conter dado específico de cliente ou de demanda — apenas defaults da factory. Consumida por tools/build_os_docx.py.",
+  "contratante_padrao": "Tria",
+  "executor_padrao": "Thiago Mancilha",
+  "autor_padrao": "Thiago Mancilha",
+  "formato_codigo_os": "OS-AAAA-NNNN",
+  "metodo_padrao_aceite": "E-mail",
+  "texto_aceite_padrao": "O aceite desta Ordem de Serviço poderá ser formalizado por meio de resposta de concordância ao e-mail utilizado para encaminhamento deste documento. Para fins de rastreabilidade, o aceite deverá referenciar o código e a versão da Ordem de Serviço, indicados na capa e no Controle de versão deste documento."
+}

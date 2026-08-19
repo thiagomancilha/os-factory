@@ -48,7 +48,7 @@ Opcionalmente, a demanda pode conter:
 
 ## Conceito de saída
 
-O resultado esperado é uma **Especificação Funcional / Ordem de Serviço padronizada**, construída a partir dos insumos fornecidos e das regras, padrões, templates e exemplos mantidos pela própria factory. Quando a validação retornar `PASS` ou `PASS_WITH_WARNINGS`, a OS é materializada também em **DOCX**, a partir do template oficial (`04-templates/docx/os-padrao.docx`); em `BLOCKED`, nenhum DOCX é gerado como documento final.
+O resultado esperado é uma **Ordem de Serviço** — com identidade visual Tria (capa, código rastreável `OS-<AAAA>-<NNNN>`, Contratante/Executor, condições comerciais e aceite), não apenas uma especificação funcional — construída a partir dos insumos fornecidos e das regras, padrões, templates e exemplos mantidos pela própria factory. Quando a validação retornar `PASS` ou `PASS_WITH_WARNINGS`, a OS é materializada também em **DOCX**, a partir do template oficial (`04-templates/docx/os-padrao.docx`); em `BLOCKED`, nenhum DOCX é gerado como documento final. A prontidão para aceite (`READY_FOR_ACCEPTANCE`/`NOT_READY_FOR_ACCEPTANCE`) é avaliada separadamente do gate funcional — pendências comerciais (valor, forma de pagamento) nunca bloqueiam a especificação funcional.
 
 A factory não deve inventar informações ausentes ou ampliar silenciosamente o escopo informado.
 
@@ -71,6 +71,7 @@ Ver `99-prompts/gerar-os.md` para o fluxo completo (agentes, gate de validação
 .osFactory/
 ├── 00-inbox/
 ├── 01-analysis/
+│   └── _runtime/          # os-registry.json (local, ignorado pelo Git)
 ├── 02-agents/
 ├── 03-knowledge-base/
 │   ├── standards/
@@ -80,6 +81,8 @@ Ver `99-prompts/gerar-os.md` para o fluxo completo (agentes, gate de validação
 │   └── docx/
 │       └── os-padrao.docx
 ├── 05-output/
+├── config/
+│   └── os-factory.json    # Contratante/Executor/Autor/método de aceite padrão
 ├── tools/
 ├── tests/
 ├── requirements.txt
@@ -124,7 +127,11 @@ Artefatos finais produzidos pela `.osFactory` (Markdown, DOCX e preview de rende
 
 ### `tools/`
 
-Scripts genéricos de materialização e auditoria: `build_os_docx.py` (Markdown → DOCX), `audit_os_visual_format.py` (auditoria estrutural do DOCX) e `render_docx_with_word.ps1` (DOCX → PDF → PNG via Word COM, para inspeção visual real). Nenhum script é específico de cliente ou demanda.
+Scripts genéricos de materialização e auditoria: `build_os_docx.py` (Markdown → DOCX, resolve código da OS e dados institucionais), `os_registry.py` (registry local demanda → código da OS), `audit_os_visual_format.py` (auditoria estrutural do DOCX) e `render_docx_with_word.ps1` (DOCX → PDF → PNG via Word COM, para inspeção visual real). Nenhum script é específico de cliente ou demanda.
+
+### `config/`
+
+`os-factory.json` — defaults institucionais versionados (Contratante, Executor, Autor, formato do código, método de aceite). Nunca contém dado de cliente ou de demanda.
 
 ## Princípio
 

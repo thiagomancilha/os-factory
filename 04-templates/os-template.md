@@ -185,6 +185,38 @@ seção pode permanecer sem valores confirmados.
 | Gestão                   |         |
 | **TOTAL**                |         |
 
+## 7. CONDIÇÕES COMERCIAIS
+
+<!--
+Preencher somente com informação proveniente de fonte válida dos insumos.
+Campos mínimos: Horas contratadas; Valor total da OS; Forma/condição de
+pagamento. Campos opcionais, quando houver fonte: Prazo de pagamento;
+Validade da OS; Início previsto; Prazo de execução. Ausência de valor ou de
+forma de pagamento é `[OPEN_QUESTION: ...]` — nunca `[DISCOVERY_ITEM: ...]`
+nem estimativa inventada (OS-QA-004, OS-EFFORT-001). Código da OS, Contratante
+e Executor NÃO são preenchidos aqui — são resolvidos e exibidos na capa pela
+materialização (`tools/build_os_docx.py`), a partir do registry e de
+`config/os-factory.json` (OS-CODE-001 / OS-CODE-002).
+-->
+
+- Horas contratadas:
+- Valor total da OS:
+- Forma / condição de pagamento:
+
+## 8. ACEITE
+
+<!--
+Texto padrão informando o método de aceite (E-mail, na v1 — ver
+`config/os-factory.json`). Não declarar que o aceite já ocorreu (OS-CODE-003).
+Data do aceite, Aprovado por e Referência do aceite só existem mediante
+confirmação explícita, preenchida na capa pela materialização — não redigir
+esses campos livremente aqui.
+-->
+
+- Método de aceite: E-mail.
+
+O aceite desta Ordem de Serviço poderá ser formalizado por meio de resposta de concordância ao e-mail utilizado para encaminhamento deste documento. Para fins de rastreabilidade, o aceite deverá referenciar o código e a versão da Ordem de Serviço, indicados na capa e no Controle de versão deste documento.
+
 ## Marcadores de incerteza
 
 Durante a elaboração, use os marcadores padronizados sempre que necessário:
@@ -207,11 +239,17 @@ só, condição bloqueante. `FUNCTIONAL_CONFLICT` relevante e
 ## Relação com o DOCX
 
 1. Este Markdown é a representação canônica de conteúdo da OS.
-2. O futuro template DOCX será a fonte de verdade visual.
-3. O gerador DOCX deverá preservar a hierarquia semântica deste arquivo.
+2. `04-templates/docx/os-padrao.docx` é a fonte de verdade visual (identidade
+   Tria: cores, fonte, cabeçalho, capa) — ver `os-documenter-agent.md` e
+   `tools/build_os_docx.py`.
+3. O gerador DOCX (`tools/build_os_docx.py`) preserva a hierarquia semântica
+   deste arquivo e nunca reinterpreta conteúdo funcional; a capa (Código da
+   OS, Contratante, Executor, Data de emissão, Versão, Status) e o Autor da
+   tabela de Controle de versão são resolvidos/normalizados na materialização,
+   não escritos livremente neste Markdown (OS-CODE-002).
 4. Alterações visuais não devem alterar o significado funcional do conteúdo.
-5. Imagens deverão ser inseridas nos pontos indicados pelos marcadores de
-   figura (`[FIGURA: ...]`).
+5. Imagens são inseridas nos pontos indicados pelos marcadores de figura
+   (`[FIGURA: ...]`).
 
 ## Princípio central
 

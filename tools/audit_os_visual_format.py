@@ -200,7 +200,10 @@ def audit_font_consistency(doc: Document) -> List[Finding]:
     Reads expected values from the DOCX's own style definitions instead
     of hardcoding point sizes, so this stays valid for any template that
     conforms to the same style-naming convention (Normal, List Bullet,
-    Heading 1/2, Title, Caption).
+    Heading 1/2, Title, Caption). Paragraphs on a cover page (before the
+    first explicit page break) are skipped: a title/subtitle
+    intentionally overriding the body font size is a design choice, not
+    a defect — see build_os_docx.py's cover page.
     """
     findings: List[Finding] = []
     styles = doc.styles
@@ -213,7 +216,13 @@ def audit_font_consistency(doc: Document) -> List[Finding]:
             continue
         defaults[name] = (style.font.name, style.font.size)
 
+    seen_page_break = False
     for para in doc.paragraphs:
+        if not seen_page_break:
+            if 'w:type="page"' in para._p.xml:
+                seen_page_break = True
+            else:
+                continue
         style_name = para.style.name
         if style_name not in defaults:
             continue
