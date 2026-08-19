@@ -37,6 +37,7 @@ Usar quando:
 - não houver inconsistências relevantes;
 - não houver requisito sem rastreabilidade;
 - não houver `OPEN_QUESTION` crítica;
+- não houver `FUNCTIONAL_CONFLICT` relevante sem resolução, nem `CONFLICT_UNCLASSIFIED` (ver subseção "CONFLICT — taxonomia e critério de bloqueio por tipo");
 - os `DISCOVERY_ITEM` presentes, se houver, forem todos válidos e controlados (ver subseção "DISCOVERY_ITEM — critério específico de bloqueio");
 - o documento estiver suficientemente consistente para revisão/aprovação humana.
 
@@ -46,6 +47,7 @@ Usar quando:
 
 - existirem pendências não bloqueantes;
 - existirem `DISCOVERY_ITEM` válidos e controlados, devidamente registrados (não contam como pendência que impede aprovação, mas justificam ressalva informativa);
+- existirem `ARCHITECTURAL_CONFLICT` ou `DOCUMENTAL_CONFLICT` que atendam ao critério de não bloqueio (ver subseção "CONFLICT — taxonomia e critério de bloqueio por tipo"), devidamente registrados;
 - existirem melhorias de redação;
 - existirem informações desejáveis, mas que não alteram substancialmente escopo, comportamento ou esforço.
 
@@ -55,7 +57,10 @@ Usar quando existir pelo menos uma condição como:
 
 - requisito sem suporte nos insumos;
 - ampliação de escopo;
-- contradição funcional relevante;
+- `FUNCTIONAL_CONFLICT` relevante não resolvido;
+- `ARCHITECTURAL_CONFLICT` que atenda ao critério de bloqueio da subseção "CONFLICT — taxonomia e critério de bloqueio por tipo" (altera materialmente escopo, interfaces contratadas, responsabilidades, esforço/prazo, contradiz premissa contratual, ou impede o início da implementação sem etapa anterior prevista);
+- `DOCUMENTAL_CONFLICT` que impeça formalização ou aprovação válida da própria OS;
+- `CONFLICT_UNCLASSIFIED` cuja classificação seja necessária para determinar o impacto;
 - `OPEN_QUESTION` que altere escopo ou comportamento;
 - regra de negócio indefinida necessária para implementação;
 - integração relevante sem definição suficiente;
@@ -70,6 +75,31 @@ Usar quando existir pelo menos uma condição como:
 **Não bloqueante** (compatível com `PASS` ou `PASS_WITH_WARNINGS`) quando, simultaneamente: a etapa de descoberta (Discovery, Engenharia Reversa, Refinamento, Levantamento técnico, Mapeamento, Validação em ambiente, inspeção de sistema existente) está explicitamente prevista nos insumos; o item é compatível com essa etapa; sua presença não impede a compreensão do escopo atual; não existe conflito funcional escondido por trás dele; e ele não exige uma decisão de negócio anterior ao início da execução.
 
 **Bloqueante ou gerador de finding** — o item deve ser reclassificado como `OPEN_QUESTION` (ou `CONFLICT`, quando aplicável) quando: não existe etapa prevista nos insumos que vá resolvê-lo; ele pode alterar materialmente o escopo; a implementação não pode iniciar sem essa definição e não existe etapa anterior prevista para resolvê-la; trata-se, na verdade, de uma decisão de negócio; trata-se de conflito entre fontes; ou foi utilizado apenas como mecanismo para evitar `BLOCKED`. Este último caso deve ser registrado como finding `CRITICAL` ou `MAJOR`, pois representa uso indevido da classificação (ver `OS-UNCERTAINTY-004` em `os-rules.md`).
+
+### CONFLICT — taxonomia e critério de bloqueio por tipo
+
+`CONFLICT` é o conceito pai; todo conflito identificado deve, sempre que houver evidência suficiente, ser classificado em um dos três subtipos, ou como `CONFLICT_UNCLASSIFIED` quando não houver:
+
+```text
+CONFLICT
+├── FUNCTIONAL_CONFLICT
+├── ARCHITECTURAL_CONFLICT
+├── DOCUMENTAL_CONFLICT
+└── CONFLICT_UNCLASSIFIED
+```
+
+**`FUNCTIONAL_CONFLICT`** — divergência que afeta diretamente regra de negócio, comportamento esperado, escopo, condição, exceção, validação, mensagem obrigatória, fluxo funcional ou critério de aceite. Sempre `BLOCKED` enquanto não houver resolução explícita. O agente não pode escolher sozinho qual fonte prevalece.
+
+**`ARCHITECTURAL_CONFLICT`** — divergência sobre tecnologia, linguagem, framework, serviço dedicado versus módulo existente, componente, arquitetura, mecanismo técnico de integração ou autenticação, persistência, infraestrutura ou estratégia de implantação. Não bloqueia automaticamente; avaliar se a decisão é necessária para fechar o escopo ou iniciar a execução:
+
+- Pode permanecer `PASS_WITH_WARNINGS` quando: o comportamento funcional está claro; a decisão técnica pode ser tomada durante arquitetura/refinamento já previsto; ambas as alternativas atendem ao escopo funcional atual; esforço/prazo contratados não dependem materialmente da escolha; existe etapa futura válida onde a decisão será tomada.
+- Deve ser `BLOCKED` quando: a escolha altera materialmente escopo; muda interfaces contratadas; altera responsabilidades entre sistemas/equipes; altera esforço ou prazo de forma relevante; uma das opções contradiz premissa contratual já confirmada; a implementação não pode iniciar sem a decisão e não existe etapa anterior prevista para resolvê-la.
+
+**`DOCUMENTAL_CONFLICT`** — divergência em informação documental ou administrativa sem impacto funcional direto (datas, responsável, versão, identificação de documento, nomenclatura administrativa, referência de contrato, status documental, autoria). Normalmente `PASS_WITH_WARNINGS` quando não impactar comportamento ou escopo; pode bloquear quando a informação documental for necessária para formalização ou aprovação da própria OS.
+
+**`CONFLICT_UNCLASSIFIED`** — usado quando não houver informação suficiente para classificar o subtipo. Não permite `PASS`. Resultado mínimo `PASS_WITH_WARNINGS`, com finding gerado para classificação antes da aprovação final; se a classificação for necessária para determinar o impacto, o resultado deve ser `BLOCKED`.
+
+**Reclassificação indevida:** é proibido classificar um conflito funcional como arquitetural ou documental apenas para evitar `BLOCKED`. A classificação deve considerar o impacto real da divergência, não apenas o assunto aparente — divergência sobre tecnologia normalmente é `ARCHITECTURAL_CONFLICT`, mas se uma tecnologia específica estiver contratualmente obrigatória e a outra fonte exigir outra arquitetura, o conflito pode ter impacto de escopo/contrato e tornar-se bloqueante. Um caso de reclassificação indevida detectado deve ser registrado como finding `CRITICAL` ou `MAJOR` (ver `OS-UNCERTAINTY-005` em `os-rules.md`).
 
 ## Dimensões obrigatórias de validação
 
@@ -172,7 +202,9 @@ Validar se:
 
 - conflitos conhecidos continuam explicitados;
 - nenhuma divergência entre fontes foi resolvida silenciosamente;
-- nenhum conflito entre fontes foi disfarçado de `DISCOVERY_ITEM`.
+- nenhum conflito entre fontes foi disfarçado de `DISCOVERY_ITEM`;
+- todo `CONFLICT` possui um subtipo definido (`FUNCTIONAL_CONFLICT`, `ARCHITECTURAL_CONFLICT`, `DOCUMENTAL_CONFLICT`) ou está registrado como `CONFLICT_UNCLASSIFIED` com finding associado;
+- o subtipo atribuído reflete o impacto real da divergência, não apenas o assunto aparente — nenhum `FUNCTIONAL_CONFLICT` foi reclassificado como `ARCHITECTURAL_CONFLICT` ou `DOCUMENTAL_CONFLICT` (nem o inverso) apenas para evitar `BLOCKED`.
 
 ### 13. Consistência documental
 
@@ -290,7 +322,9 @@ Se não houver: `Nenhum Discovery Item identificado.`
 
 ### 8. Conflitos Pendentes
 
-Relacionar conflitos ainda existentes.
+Relacionar conflitos ainda existentes, indicando para cada um: subtipo (`FUNCTIONAL_CONFLICT`, `ARCHITECTURAL_CONFLICT`, `DOCUMENTAL_CONFLICT` ou `CONFLICT_UNCLASSIFIED`); se bloqueia ou não, conforme os critérios da subseção "CONFLICT — taxonomia e critério de bloqueio por tipo"; e a decisão necessária para resolvê-lo, quando identificável.
+
+Se não houver: `Nenhum conflito pendente identificado.`
 
 ### 9. Checklist Final
 

@@ -84,6 +84,12 @@ Validar somente quando houver integração aplicável à demanda:
 - [ ] Nenhuma `INFERENCE` aparece como `FACT`. (OS-UNCERTAINTY-001)
 - [ ] Toda `OPEN_QUESTION` relevante permanece visível até ser respondida por fonte válida. (OS-UNCERTAINTY-002)
 - [ ] Todo `CONFLICT` identificado permanece visível até resolução explícita. (OS-UNCERTAINTY-003)
+- [ ] Todo conflito identificado possui tipo definido (`FUNCTIONAL_CONFLICT`, `ARCHITECTURAL_CONFLICT`, `DOCUMENTAL_CONFLICT`) ou justificativa para `CONFLICT_UNCLASSIFIED`. (OS-UNCERTAINTY-005)
+- [ ] Nenhum `FUNCTIONAL_CONFLICT` relevante foi aprovado sem resolução. (OS-UNCERTAINTY-005)
+- [ ] Todo `ARCHITECTURAL_CONFLICT` teve seu impacto sobre escopo/esforço/prazo avaliado. (OS-UNCERTAINTY-005)
+- [ ] Todo `DOCUMENTAL_CONFLICT` teve seu impacto sobre formalização avaliado. (OS-UNCERTAINTY-005)
+- [ ] Nenhum conflito foi reclassificado apenas para evitar bloqueio. (OS-UNCERTAINTY-005)
+- [ ] As fontes de cada conflito estão rastreáveis. (OS-UNCERTAINTY-005 / OS-SOURCE-002)
 - [ ] Nenhuma lacuna foi fechada silenciosamente. (OS-UNCERTAINTY-002 / OS-UNCERTAINTY-003)
 - [ ] `OPEN_QUESTION` e `DISCOVERY_ITEM` foram classificados corretamente, sem uma classificação absorver a outra. (OS-UNCERTAINTY-004)
 - [ ] Todo `DISCOVERY_ITEM` possui evidência de que sua resolução faz parte de uma etapa prevista (Discovery, Engenharia Reversa, Refinamento, Levantamento técnico, Mapeamento, Validação em ambiente, inspeção de sistema existente). (OS-UNCERTAINTY-004)
@@ -146,7 +152,10 @@ A OS deve ser classificada como `BLOCKED` se existir pelo menos uma das condiç�
 - [ ] Requisito inventado, sem suporte nos insumos. (OS-CORE-001 / OS-QA-001)
 - [ ] Ampliação de escopo não confirmada. (OS-SCOPE-001 / OS-QA-001)
 - [ ] `OPEN_QUESTION` crítica ainda sem resposta. (OS-UNCERTAINTY-002 / OS-QA-001)
-- [ ] `CONFLICT` funcional relevante não resolvido. (OS-UNCERTAINTY-003 / OS-QA-001)
+- [ ] `FUNCTIONAL_CONFLICT` relevante não resolvido. (OS-UNCERTAINTY-003 / OS-UNCERTAINTY-005 / OS-QA-001)
+- [ ] `ARCHITECTURAL_CONFLICT` que altera materialmente escopo, interfaces contratadas, responsabilidades, esforço/prazo, ou impede início da implementação sem etapa prevista. (OS-UNCERTAINTY-005 / OS-QA-001)
+- [ ] `DOCUMENTAL_CONFLICT` que impede formalização ou aprovação válida da própria OS. (OS-UNCERTAINTY-005 / OS-QA-001)
+- [ ] `CONFLICT_UNCLASSIFIED` cuja classificação é necessária para determinar o impacto. (OS-UNCERTAINTY-005 / OS-QA-001)
 - [ ] Regra necessária para implementação ainda indefinida. (OS-QA-001)
 - [ ] Esforço inventado ou sem origem válida. (OS-EFFORT-001 / OS-QA-001)
 - [ ] `DISCOVERY_ITEM` sem etapa de resolução prevista, mascarando decisão de negócio pendente, ou correspondendo na prática a um conflito entre fontes. (OS-UNCERTAINTY-004 / OS-QA-001)
@@ -180,7 +189,7 @@ Versão resumida para uso rápido, após a verificação completa acima já ter 
 - [ ] Nenhuma inferência apresentada como fato
 - [ ] Open Questions tratadas corretamente
 - [ ] Discovery Items classificados corretamente, sem mascarar decisão pendente
-- [ ] Conflitos explicitados
+- [ ] Conflitos explicitados, com tipo definido (ou `CONFLICT_UNCLASSIFIED` justificado)
 - [ ] Esforço não inventado
 - [ ] Terminologia consistente
 - [ ] Documento testável

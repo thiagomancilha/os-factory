@@ -192,12 +192,17 @@ Durante a elaboração, use os marcadores padronizados sempre que necessário:
 - `[OPEN_QUESTION: ...]` — lacuna a esclarecer, cuja resposta é necessária para fechar a especificação.
 - `[DISCOVERY_ITEM: ...]` — informação ainda não conhecida, mas cuja descoberta já está prevista pelos insumos como parte de uma etapa futura (Discovery, Engenharia Reversa, Refinamento, Levantamento técnico, Mapeamento, Validação em ambiente, inspeção de sistema existente). Não é a mesma coisa que `OPEN_QUESTION` — ver OS-UNCERTAINTY-004. Não há seção obrigatória de "Discovery Items" nesta OS; o marcador aparece onde for funcionalmente relevante.
 - `[INFERENCE: ...]` — conclusão razoável, ainda não confirmada explicitamente.
-- `[CONFLICT: ...]` — contradição entre insumos.
+- `[FUNCTIONAL_CONFLICT: ...]` — contradição entre insumos que afeta regra de negócio, comportamento, escopo, condição, exceção, validação, mensagem obrigatória, fluxo funcional ou critério de aceite.
+- `[ARCHITECTURAL_CONFLICT: ...]` — contradição entre insumos sobre tecnologia, framework, componente, arquitetura, mecanismo técnico ou estratégia de implantação.
+- `[DOCUMENTAL_CONFLICT: ...]` — contradição entre insumos em informação documental ou administrativa (data, responsável, versão, referência de contrato), sem impacto funcional direto.
+- `[CONFLICT_UNCLASSIFIED: ...]` — contradição entre insumos ainda sem informação suficiente para classificar o tipo.
 
 Eles são temporários: uma OS classificada como `PASS` pelo `os-validator-agent`
 não deve conter condição bloqueante ainda não resolvida (ver OS-UNCERTAINTY-001
-a 004 e OS-QA-001). Um `DISCOVERY_ITEM` válido e controlado não é, por si só,
-uma condição bloqueante.
+a 005 e OS-QA-001). Um `DISCOVERY_ITEM` válido e controlado, ou um
+`ARCHITECTURAL_CONFLICT`/`DOCUMENTAL_CONFLICT` não bloqueante, não são, por si
+só, condição bloqueante. `FUNCTIONAL_CONFLICT` relevante e
+`CONFLICT_UNCLASSIFIED` permanecem pendência até classificação/resolução.
 
 ## Relação com o DOCX
 

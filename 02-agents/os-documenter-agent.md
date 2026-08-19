@@ -164,11 +164,16 @@ Quando existir uma inferência relevante ainda não confirmada:
 
 `[INFERENCE: descrição]`
 
-Quando existir conflito não resolvido:
+Quando existir conflito não resolvido, utilizar o marcador do subtipo já classificado em `functional-analysis.md`:
 
-`[CONFLICT: descrição]`
+`[FUNCTIONAL_CONFLICT: descrição]`
+`[ARCHITECTURAL_CONFLICT: descrição]`
+`[DOCUMENTAL_CONFLICT: descrição]`
+`[CONFLICT_UNCLASSIFIED: descrição]`
 
-Esses marcadores devem permanecer visíveis para o agente de revisão posterior. Não existe uma seção obrigatória de "Discovery Items" na OS final — cada `[DISCOVERY_ITEM: ...]` deve aparecer dentro da seção onde é funcionalmente relevante (Escopo, Premissas e Dependências, etc.), da mesma forma que `[OPEN_QUESTION: ...]` já funciona hoje.
+O documentador não decide o subtipo do conflito — apenas preserva a classificação recebida do `functional-analysis.md` e a expressa de forma objetiva, sem escolher qual fonte prevalece. Se o `functional-analysis.md` ainda não tiver classificado o subtipo, usar `[CONFLICT_UNCLASSIFIED: descrição]`.
+
+Esses marcadores devem permanecer visíveis para o agente de revisão posterior. Não existe uma seção obrigatória de "Discovery Items" nem de "Conflitos" na OS final — cada marcador (`[DISCOVERY_ITEM: ...]`, `[FUNCTIONAL_CONFLICT: ...]`, `[ARCHITECTURAL_CONFLICT: ...]`, `[DOCUMENTAL_CONFLICT: ...]`, `[CONFLICT_UNCLASSIFIED: ...]`) deve aparecer dentro da seção onde é funcionalmente relevante (Escopo, Premissas e Dependências, etc.), da mesma forma que `[OPEN_QUESTION: ...]` já funciona hoje.
 
 ## Rastreabilidade
 

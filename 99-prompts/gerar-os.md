@@ -86,7 +86,7 @@ Fonte principal: `01-analysis/<demanda>/intake.md`
 
 Gerar: `01-analysis/<demanda>/functional-analysis.md`
 
-Preservar as classificações `FACT`, `INFERENCE`, `OPEN_QUESTION` e `CONFLICT` herdadas do intake e identificadas nesta etapa.
+Preservar as classificações `FACT`, `INFERENCE`, `OPEN_QUESTION`, `DISCOVERY_ITEM` e `CONFLICT` (classificado por subtipo — `FUNCTIONAL_CONFLICT`, `ARCHITECTURAL_CONFLICT`, `DOCUMENTAL_CONFLICT` ou `CONFLICT_UNCLASSIFIED`, quando houver evidência suficiente) herdadas do intake e identificadas nesta etapa.
 
 ## 5. Documentação
 
@@ -130,7 +130,7 @@ A OS pode ser apresentada como:
 
 **PASS_WITH_WARNINGS**
 
-A OS pode ser apresentada, mas o orquestrador deve mostrar claramente os warnings existentes, incluindo eventuais `DISCOVERY_ITEM` válidos e controlados (não bloqueantes por si só, mas informados por transparência).
+A OS pode ser apresentada, mas o orquestrador deve mostrar claramente os warnings existentes, incluindo eventuais `DISCOVERY_ITEM` válidos e controlados e eventuais `ARCHITECTURAL_CONFLICT`/`DOCUMENTAL_CONFLICT` não bloqueantes (todos não bloqueantes por si só, mas informados por transparência — ver critério em `os-validator-agent.md`).
 
 Status: `OS pronta para revisão humana com ressalvas.`
 
@@ -140,7 +140,9 @@ A OS **não** pode ser apresentada como finalizada. Mostrar:
 
 - findings bloqueantes;
 - `OPEN_QUESTION` críticas;
-- `CONFLICT`;
+- `FUNCTIONAL_CONFLICT` relevante não resolvido;
+- `ARCHITECTURAL_CONFLICT` ou `DOCUMENTAL_CONFLICT` que atenda ao critério de bloqueio específico (ver `os-validator-agent.md`);
+- `CONFLICT_UNCLASSIFIED` cuja classificação seja necessária para determinar o impacto;
 - `UNTRACEABLE_REQUIREMENT`;
 - `DISCOVERY_ITEM` reclassificado como bloqueante (sem etapa de resolução prevista, mascarando decisão de negócio, ou correspondendo na prática a um conflito entre fontes — ver `OS-UNCERTAINTY-004`);
 - outras causas do bloqueio.
@@ -186,7 +188,7 @@ Nunca corrigir automaticamente quando for necessário decidir ou inventar:
 - responsável;
 - esforço;
 - premissa;
-- conflito entre fontes;
+- conflito entre fontes, incluindo a definição do seu subtipo (`FUNCTIONAL_CONFLICT`, `ARCHITECTURAL_CONFLICT`, `DOCUMENTAL_CONFLICT`) quando não houver evidência suficiente nos insumos — nesse caso, manter `CONFLICT_UNCLASSIFIED`;
 - resposta a uma `OPEN_QUESTION`;
 - o conteúdo de um `DISCOVERY_ITEM` (a descoberta pertence à etapa prevista para isso, não ao orquestrador — antecipar essa informação seria inventar).
 
@@ -243,9 +245,15 @@ Open Questions:
 
 Discovery Items:
 - ...
+
+Conflicts:
+- Functional:
+- Architectural:
+- Documental:
+- Unclassified:
 ```
 
-`Open Questions` e `Discovery Items` devem ser apresentados em blocos separados — não são a mesma coisa (ver `OS-UNCERTAINTY-004`).
+`Open Questions`, `Discovery Items` e `Conflicts` devem ser apresentados em blocos separados — não são a mesma coisa (ver `OS-UNCERTAINTY-004` e `OS-UNCERTAINTY-005`). Dentro de `Conflicts`, mostrar claramente quais itens são bloqueantes: todo `Functional` relevante bloqueia; `Architectural`/`Documental` bloqueiam apenas quando atenderem ao critério específico (ver `os-validator-agent.md`); `Unclassified` nunca permite `PASS` e deve ser sinalizado como pendência de classificação.
 
 Quando houver `OPEN_QUESTION`, apresentar as perguntas de maneira objetiva para que o usuário possa respondê-las.
 

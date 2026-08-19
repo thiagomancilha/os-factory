@@ -22,7 +22,7 @@ O agente deve:
 8. Identificar restrições ou itens explicitamente fora de escopo.
 9. Identificar informações sobre esforço, prazo ou responsáveis, caso existam.
 10. Identificar lacunas de informação necessárias para evoluir a especificação.
-11. Identificar contradições entre diferentes insumos.
+11. Identificar contradições entre diferentes insumos e, quando houver evidência suficiente, classificá-las quanto à natureza (`FUNCTIONAL_CONFLICT`, `ARCHITECTURAL_CONFLICT`, `DOCUMENTAL_CONFLICT`) ou registrá-las como `CONFLICT_UNCLASSIFIED` quando a natureza ainda não estiver clara.
 12. Manter rastreabilidade da origem das informações relevantes.
 13. Distinguir uma lacuna que precisa ser respondida para fechar a especificação (`OPEN_QUESTION`) de uma informação cuja descoberta já está prevista pelos próprios insumos como parte de uma etapa futura — Discovery, Engenharia Reversa, Refinamento, Levantamento técnico, Mapeamento, Validação em ambiente ou inspeção de sistema existente (`DISCOVERY_ITEM`).
 
@@ -34,11 +34,13 @@ Toda informação relevante deve ser classificada como:
 - `INFERENCE`: interpretação razoável, mas não explicitamente confirmada.
 - `OPEN_QUESTION`: informação ou decisão ainda ausente cuja resposta é necessária para definir corretamente escopo, comportamento funcional, regra de negócio, integração, critério de aceite ou outro aspecto necessário para considerar a especificação fechada.
 - `DISCOVERY_ITEM`: informação ainda não conhecida, mas cuja descoberta já está prevista nos próprios insumos como parte de uma etapa futura (Discovery, Engenharia Reversa, Refinamento, Levantamento técnico, Mapeamento, Validação em ambiente, inspeção de sistema existente). Não representa necessariamente uma falha da especificação atual — representa informação conscientemente diferida para uma etapa já prevista e controlada do próprio trabalho.
-- `CONFLICT`: informações incompatíveis ou contraditórias encontradas nos insumos.
+- `CONFLICT`: informações incompatíveis ou contraditórias encontradas nos insumos. Sempre que houver evidência suficiente, deve ser classificado em um subtipo — `FUNCTIONAL_CONFLICT`, `ARCHITECTURAL_CONFLICT` ou `DOCUMENTAL_CONFLICT` — ou, na ausência dessa evidência, registrado como `CONFLICT_UNCLASSIFIED` (ver `OS-UNCERTAINTY-005` em `os-rules.md`).
 
 O agente nunca deve apresentar `INFERENCE` como `FACT`.
 
 Uma lacuna só deve ser classificada como `DISCOVERY_ITEM` quando os insumos indicarem, ao mesmo tempo: (a) que existe evidência de uma etapa de descoberta/refinamento/engenharia reversa prevista para resolvê-la; (b) que a informação é exatamente do tipo que essa etapa está prevista para descobrir; (c) que sua ausência não impede definir o objetivo e o limite funcional atual da demanda; (d) que ela não está sendo simplesmente omitida por falta de levantamento; e (e) que há clareza suficiente sobre quando ou em qual etapa será resolvida (ver `OS-UNCERTAINTY-004` em `os-rules.md`). Quando faltar uma decisão sobre comportamento do sistema, regra de negócio, cenário de escopo, mensagem obrigatória, integração, fonte contraditória a adotar, ou opção arquitetural necessária para fechar a contratação, a lacuna deve ser registrada como `OPEN_QUESTION` (ou `CONFLICT`, quando aplicável) — nunca como `DISCOVERY_ITEM` apenas para evitar que a especificação pareça incompleta.
+
+Um `CONFLICT` deve ser classificado como `FUNCTIONAL_CONFLICT` quando a divergência afeta diretamente regra de negócio, comportamento esperado, escopo, condição, exceção, validação, mensagem obrigatória, fluxo funcional ou critério de aceite; como `ARCHITECTURAL_CONFLICT` quando a divergência for sobre tecnologia, linguagem, framework, serviço dedicado versus módulo existente, componente, arquitetura, mecanismo técnico de integração ou autenticação, persistência, infraestrutura ou estratégia de implantação; ou como `DOCUMENTAL_CONFLICT` quando a divergência estiver em informação documental ou administrativa sem impacto funcional direto (datas, responsável, versão, identificação de documento, nomenclatura administrativa, referência de contrato, status documental, autoria). A classificação deve considerar o impacto real da divergência, não apenas o assunto aparente — é proibido classificar um conflito funcional como arquitetural ou documental apenas para evitar bloqueio (ver `OS-UNCERTAINTY-005` em `os-rules.md`).
 
 ## Regras obrigatórias
 
@@ -116,7 +118,17 @@ Lista objetiva das informações que precisam ser esclarecidas para permitir a e
 
 ### 11. Conflitos
 
-Contradições identificadas entre os insumos.
+Contradições identificadas entre os insumos, com o subtipo (`FUNCTIONAL_CONFLICT`, `ARCHITECTURAL_CONFLICT`, `DOCUMENTAL_CONFLICT` ou `CONFLICT_UNCLASSIFIED`) quando houver evidência suficiente para classificar. Para cada conflito, registrar, quando possível:
+
+```text
+CONFLICT:
+- Tipo:
+- Fontes conflitantes:
+- Informação de cada fonte:
+- Natureza provável:
+- Impacto conhecido:
+- Decisão necessária:
+```
 
 Se não houver: `Nenhum conflito identificado.`
 

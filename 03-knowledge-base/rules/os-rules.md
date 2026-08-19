@@ -348,9 +348,9 @@ Cada regra registra uma origem:
 
 **Objetivo:** Preservar a visibilidade de contradições entre fontes até que sejam resolvidas de forma explícita.
 
-**Regra:** Informações contraditórias entre diferentes insumos não podem ser resolvidas silenciosamente por um agente. Todo `CONFLICT` identificado deve ser registrado e permanecer visível até resolução explícita.
+**Regra:** Informações contraditórias entre diferentes insumos não podem ser resolvidas silenciosamente por um agente. Todo `CONFLICT` identificado deve ser registrado e permanecer visível até resolução explícita. Sempre que houver evidência suficiente, o `CONFLICT` deve ser classificado em um dos subtipos definidos em `OS-UNCERTAINTY-005` (`FUNCTIONAL_CONFLICT`, `ARCHITECTURAL_CONFLICT`, `DOCUMENTAL_CONFLICT`); na ausência dessa evidência, usar `CONFLICT_UNCLASSIFIED`.
 
-**Evitar:** Escolher, sem justificativa registrada, qual das duas fontes contraditórias "deve estar certa"; omitir um conflito da OS final por parecer inconveniente.
+**Evitar:** Escolher, sem justificativa registrada, qual das duas fontes contraditórias "deve estar certa"; omitir um conflito da OS final por parecer inconveniente; classificar o subtipo de um conflito por conveniência em vez de pelo impacto real da divergência (ver `OS-UNCERTAINTY-005`).
 
 **Justificativa:** Resolver conflito silenciosamente equivale a inventar qual fonte é confiável — viola `OS-CORE-001` por decisão indireta.
 
@@ -367,6 +367,20 @@ Cada regra registra uma origem:
 **Evitar:** Classificar como `DISCOVERY_ITEM` uma decisão sobre comportamento do sistema, regra de negócio, cenário de escopo, mensagem obrigatória, integração, fonte contraditória a adotar, ou opção arquitetural necessária para fechar a contratação; transformar uma `OPEN_QUESTION` em `DISCOVERY_ITEM` apenas para que a OS passe pela validação; tratar um `CONFLICT` entre fontes como `DISCOVERY_ITEM`; inventar um fallback não suportado pelos insumos.
 
 **Justificativa:** Identificada no primeiro teste ponta a ponta real da `.osFactory`: o vocabulário `FACT`/`INFERENCE`/`OPEN_QUESTION`/`CONFLICT` não distinguia uma lacuna que exige decisão humana de uma informação deliberadamente diferida para uma etapa de descoberta já prevista no próprio escopo da demanda (por exemplo, engenharia reversa de um banco legado). Sem essa distinção, demandas legitimamente exploratórias corriam o risco de ser bloqueadas por pendências que, na verdade, já fazem parte do trabalho planejado.
+
+**Origem:** `QUALITY_IMPROVEMENT`
+
+### OS-UNCERTAINTY-005 — Taxonomia de CONFLICT e gate por tipo
+
+**Classificação:** `MUST`
+
+**Objetivo:** Diferenciar o impacto de um `CONFLICT` no gate da OS conforme sua natureza, em vez de tratar toda divergência entre fontes com o mesmo peso.
+
+**Regra:** Todo `CONFLICT` identificado deve, sempre que houver evidência suficiente, ser classificado em um dos três subtipos: `FUNCTIONAL_CONFLICT` — divergência que afeta diretamente regra de negócio, comportamento esperado, escopo, condição, exceção, validação, mensagem obrigatória, fluxo funcional ou critério de aceite; sempre `BLOCKED` enquanto não houver resolução explícita, sem que o agente escolha sozinho qual fonte prevalece. `ARCHITECTURAL_CONFLICT` — divergência sobre tecnologia, linguagem, framework, serviço dedicado versus módulo existente, componente, arquitetura, mecanismo técnico de integração ou autenticação, persistência, infraestrutura ou estratégia de implantação; pode permanecer `PASS_WITH_WARNINGS` quando o comportamento funcional estiver claro, a decisão técnica puder ser tomada em etapa de arquitetura/refinamento já prevista, ambas as alternativas atenderem ao escopo funcional atual e o esforço/prazo contratado não depender materialmente da escolha; deve ser `BLOCKED` quando a escolha alterar materialmente o escopo, mudar interfaces contratadas, alterar responsabilidades entre sistemas/equipes, alterar esforço ou prazo de forma relevante, contradizer premissa contratual já confirmada, ou quando a implementação não puder iniciar sem a decisão e não existir etapa anterior prevista para resolvê-la. `DOCUMENTAL_CONFLICT` — divergência em informação documental ou administrativa sem impacto funcional direto (datas, responsável, versão, identificação de documento, nomenclatura administrativa, referência de contrato, status documental, autoria); normalmente `PASS_WITH_WARNINGS`, podendo bloquear quando a informação for necessária para formalização ou aprovação da própria OS. Quando não houver informação suficiente para classificar, usar `CONFLICT_UNCLASSIFIED`, que nunca permite `PASS` e deve gerar finding para classificação antes da aprovação final; se a classificação for necessária para determinar o impacto, o resultado deve ser `BLOCKED`.
+
+**Evitar:** Classificar um conflito funcional como arquitetural ou documental (ou vice-versa) apenas para evitar `BLOCKED` — a classificação deve considerar o impacto real da divergência, não apenas o assunto aparente (ex.: divergência sobre tecnologia normalmente é `ARCHITECTURAL_CONFLICT`, mas se uma tecnologia específica estiver contratualmente obrigatória e a outra fonte exigir outra arquitetura, o conflito pode ter impacto de escopo/contrato e tornar-se bloqueante); deixar um `CONFLICT_UNCLASSIFIED` sem finding associado; tratar `ARCHITECTURAL_CONFLICT` ou `DOCUMENTAL_CONFLICT` como automaticamente não bloqueante sem avaliar o critério específico.
+
+**Justificativa:** Identificada após o primeiro teste real da `.osFactory` e a introdução de `DISCOVERY_ITEM`: nem todo `CONFLICT` tem o mesmo impacto no gate — um conflito puramente arquitetural (ex.: onde implementar um serviço) não deveria bloquear a OS da mesma forma que um conflito sobre o comportamento que o sistema deve ter, mas ambos precisam permanecer visíveis e nunca ser resolvidos silenciosamente.
 
 **Origem:** `QUALITY_IMPROVEMENT`
 
@@ -412,9 +426,9 @@ Cada regra registra uma origem:
 
 **Objetivo:** Definir, de forma objetiva, quando uma OS não pode ser considerada pronta.
 
-**Regra:** A OS não pode ser considerada pronta quando houver: requisito sem rastreabilidade (`UNTRACEABLE_REQUIREMENT`); ampliação de escopo não confirmada; conflito funcional relevante não resolvido; `OPEN_QUESTION` crítica ainda sem resposta; regra necessária para implementação ainda indefinida; esforço inventado/sem origem válida; ou `DISCOVERY_ITEM` que não atenda aos critérios de `OS-UNCERTAINTY-004` (sem etapa de resolução prevista, mascarando decisão de negócio, ou correspondendo na prática a um conflito entre fontes). Um `DISCOVERY_ITEM` válido e controlado, por si só, não é condição de bloqueio.
+**Regra:** A OS não pode ser considerada pronta quando houver: requisito sem rastreabilidade (`UNTRACEABLE_REQUIREMENT`); ampliação de escopo não confirmada; `FUNCTIONAL_CONFLICT` relevante não resolvido; `ARCHITECTURAL_CONFLICT` ou `DOCUMENTAL_CONFLICT` que atenda ao critério de bloqueio da própria subseção em `os-validator-agent.md`; `CONFLICT_UNCLASSIFIED` cuja classificação seja necessária para determinar o impacto; `OPEN_QUESTION` crítica ainda sem resposta; regra necessária para implementação ainda indefinida; esforço inventado/sem origem válida; ou `DISCOVERY_ITEM` que não atenda aos critérios de `OS-UNCERTAINTY-004` (sem etapa de resolução prevista, mascarando decisão de negócio, ou correspondendo na prática a um conflito entre fontes). Um `DISCOVERY_ITEM` válido e controlado, ou um `ARCHITECTURAL_CONFLICT`/`DOCUMENTAL_CONFLICT` não bloqueante, por si só, não são condição de bloqueio.
 
-**Evitar:** Marcar uma OS como concluída "com ressalvas" quando uma dessas condições ainda está presente; tratar essas condições como sugestões em vez de bloqueio; bloquear automaticamente uma OS só por conter `DISCOVERY_ITEM` válido; aceitar um `DISCOVERY_ITEM` sem evidência de etapa prevista como se não bloqueasse.
+**Evitar:** Marcar uma OS como concluída "com ressalvas" quando uma dessas condições ainda está presente; tratar essas condições como sugestões em vez de bloqueio; bloquear automaticamente uma OS só por conter `DISCOVERY_ITEM` válido ou `ARCHITECTURAL_CONFLICT`/`DOCUMENTAL_CONFLICT` não bloqueante; aceitar um `DISCOVERY_ITEM` sem evidência de etapa prevista como se não bloqueasse; deixar um `CONFLICT_UNCLASSIFIED` sem classificação apenas para não bloquear.
 
 **Justificativa:** É a formalização, neste arquivo, das condições de classificação `BLOCKED` já definidas no `os-validator-agent` — reunidas aqui para que qualquer agente, não só o validador, saiba reconhecer esses sinais de bloqueio antes mesmo da etapa de validação.
 

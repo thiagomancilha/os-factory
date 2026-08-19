@@ -36,6 +36,8 @@ Utilizar as classificações já estabelecidas:
 
 `OPEN_QUESTION` e `DISCOVERY_ITEM` não são intercambiáveis: uma lacuna só é `DISCOVERY_ITEM` quando os insumos já preveem, de forma explícita, uma etapa (Discovery, Engenharia Reversa, Refinamento, Levantamento técnico, Mapeamento, Validação em ambiente, inspeção de sistema existente) responsável por resolvê-la, e sua ausência não impede definir o objetivo e o limite funcional atual da demanda. Ver `OS-UNCERTAINTY-004` em `os-rules.md`. É proibido reclassificar uma `OPEN_QUESTION` como `DISCOVERY_ITEM` apenas para que a análise ou a futura OS pareçam mais completas ou passem pela validação com menos ressalvas.
 
+Todo `CONFLICT` deve, sempre que houver evidência suficiente, ser classificado em um subtipo — `FUNCTIONAL_CONFLICT`, `ARCHITECTURAL_CONFLICT` ou `DOCUMENTAL_CONFLICT` — ou registrado como `CONFLICT_UNCLASSIFIED` quando a natureza ainda não estiver clara. A classificação considera o impacto real da divergência, não apenas o assunto aparente; é proibido reclassificar um `FUNCTIONAL_CONFLICT` como `ARCHITECTURAL_CONFLICT` ou `DOCUMENTAL_CONFLICT` (ou vice-versa) apenas para evitar bloqueio (ver `OS-UNCERTAINTY-005` em `os-rules.md`).
+
 ## Responsabilidades
 
 O agente deve:
@@ -57,6 +59,7 @@ O agente deve:
 15. Gerar perguntas adicionais quando ainda não houver informação suficiente para especificar determinado comportamento.
 16. Manter rastreabilidade com o intake e os insumos originais.
 17. Revisar a classificação `DISCOVERY_ITEM` herdada do `intake.md` e reclassificar como `OPEN_QUESTION` (ou `CONFLICT`, quando aplicável) qualquer item que, na análise mais detalhada, se mostre uma decisão de negócio, comportamento, regra, mensagem obrigatória, integração ou definição arquitetural necessária para fechar a especificação — não apenas uma descoberta técnica planejada.
+18. Revisar e, quando necessário, refinar o subtipo de cada `CONFLICT` herdado do `intake.md`, verificando se o impacto real (não apenas o assunto aparente) confirma o subtipo atribuído, e classificar como `CONFLICT_UNCLASSIFIED` qualquer conflito ainda sem evidência suficiente para um subtipo específico.
 
 ## Regras
 
@@ -69,6 +72,7 @@ O agente deve:
 - Não transformar exemplos em regras gerais sem evidência.
 - Não remover `OPEN_QUESTION` apenas para deixar a análise aparentemente completa.
 - Não classificar uma pendência como `DISCOVERY_ITEM` apenas para evitar que ela apareça como lacuna ou para facilitar a aprovação posterior na validação.
+- Não classificar um `FUNCTIONAL_CONFLICT` como `ARCHITECTURAL_CONFLICT` ou `DOCUMENTAL_CONFLICT` (nem o inverso) apenas para reduzir a severidade do gate — a classificação deve refletir o impacto real da divergência.
 - Não ampliar o escopo original.
 - Não eliminar condições de exceção encontradas nos insumos.
 - Preservar a terminologia utilizada pelo cliente ou pelo sistema.
@@ -170,7 +174,18 @@ Relacionar interpretações úteis ainda não confirmadas.
 
 ### 14. Conflitos
 
-Registrar inconsistências ainda existentes.
+Registrar inconsistências ainda existentes, com subtipo quando classificável, no seguinte formato:
+
+```text
+Tipo:
+Fontes:
+Divergência:
+Impacto:
+Bloqueante:
+Decisão necessária:
+```
+
+Não resolver divergência silenciosamente. Quando não houver evidência suficiente para classificar o subtipo, usar `Tipo: CONFLICT_UNCLASSIFIED` e registrar o que falta para permitir a classificação.
 
 ### 15. Rastreabilidade
 
@@ -194,5 +209,6 @@ Ao final, a análise deve permitir que outro agente responda:
 - quais sistemas são impactados?
 - o que ainda precisa ser perguntado (`OPEN_QUESTION`)?
 - o que foi deliberadamente diferido para uma etapa de descoberta já prevista (`DISCOVERY_ITEM`)?
+- todo `CONFLICT` identificado tem um subtipo definido, ou uma justificativa clara para `CONFLICT_UNCLASSIFIED`?
 
 Se alguma dessas respostas não estiver disponível nos insumos, isso deve aparecer explicitamente como lacuna e nunca ser inventado.
