@@ -216,7 +216,7 @@ Artefato de saída:
 └── OS-<demanda>.md
 ```
 
-Não colocar output final em pasta versionada (`05-output/` é ignorada pelo Git — ver `.gitignore`). Não copiar insumos de cliente para a base de conhecimento (`OS-PRIVACY-001` / `OS-PRIVACY-002`).
+`00-inbox/<demanda>/`, `01-analysis/<demanda>/` e `05-output/<demanda>/` são áreas operacionais locais de uma demanda — dados de runtime, ignorados pelo Git (ver `.gitignore` e `OS-PRIVACY-003`). Não colocar output final nem artefatos intermediários de demanda em pasta versionada. A única exceção é `01-analysis/_os-models/`, área especial de conhecimento sanitizado e aprovado para versionamento (ver `OS-PRIVACY-001`), usada exclusivamente pelo `os-pattern-learner-agent` fora deste pipeline. Não copiar insumos de cliente para a base de conhecimento (`OS-PRIVACY-001` / `OS-PRIVACY-002` / `OS-PRIVACY-003`).
 
 ## 12. Resposta ao usuário
 
@@ -262,7 +262,7 @@ O orquestrador:
 - não faz push;
 - não modifica `.proposalFactory`;
 - não altera arquivos em `00-inbox/`;
-- não move documentos de cliente para áreas versionadas;
+- não move documentos de cliente para áreas versionadas (`01-analysis/<demanda>/` inclusa — ver `OS-PRIVACY-003`);
 - não cria regras permanentes automaticamente;
 - não altera agentes durante a execução de uma OS.
 

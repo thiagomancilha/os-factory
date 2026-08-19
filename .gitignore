@@ -1,2 +1,4 @@
 /00-inbox/
 /05-output/
+/01-analysis/*
+!/01-analysis/_os-models/

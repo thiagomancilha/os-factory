@@ -444,11 +444,25 @@ Cada regra registra uma origem:
 
 **Objetivo:** Reforçar que a proteção de dado de cliente não se limita aos modelos de aprendizado — vale para toda demanda em andamento.
 
-**Regra:** Nenhum conteúdo específico de cliente proveniente de `00-inbox/` ou de `05-output/` (ambas áreas ignoradas pelo Git) deve ser copiado, resumido ou referenciado em detalhe dentro de `02-agents/`, `03-knowledge-base/` ou `04-templates/`.
+**Regra:** Nenhum conteúdo específico de cliente proveniente de `00-inbox/<demanda>/`, `01-analysis/<demanda>/` ou `05-output/<demanda>/` (áreas de runtime de uma demanda, ignoradas pelo Git — ver `OS-PRIVACY-003` — com exceção de `01-analysis/_os-models/`) deve ser copiado, resumido ou referenciado em detalhe dentro de `02-agents/`, `03-knowledge-base/` ou `04-templates/`.
 
 **Evitar:** Usar uma demanda real em andamento como exemplo ilustrativo dentro de um arquivo de regra ou template.
 
-**Justificativa:** Confirma e generaliza, para todo o repositório, a mesma convenção de `.gitignore` (`/00-inbox/`, `/05-output/`) já adotada pela `.osFactory` e observada também na factory irmã de propostas.
+**Justificativa:** Confirma e generaliza, para todo o repositório, a mesma convenção de `.gitignore` (`/00-inbox/`, `/05-output/`, `/01-analysis/*` com exceção de `/01-analysis/_os-models/`) já adotada pela `.osFactory` e observada também na factory irmã de propostas.
 
 **Origem:** `EMPIRICAL_PATTERN`
+
+### OS-PRIVACY-003 — Artefatos operacionais de uma demanda não são versionados
+
+**Classificação:** `MUST_NOT`
+
+**Objetivo:** Impedir que artefatos intermediários gerados durante o processamento de uma demanda real — que podem conter nome de cliente, responsável, valores, identificadores de requisição e outros dados específicos — sejam versionados no Git.
+
+**Regra:** Os artefatos gerados em `01-analysis/<demanda>/` (`intake.md`, `functional-analysis.md`, `validation.md` e demais arquivos específicos de uma demanda) são dados de runtime, tal como os insumos em `00-inbox/<demanda>/` e a saída em `05-output/<demanda>/`, e devem permanecer fora do controle de versão (`.gitignore`). A única exceção é `01-analysis/_os-models/`, que contém conhecimento já sanitizado e aprovado para versionamento, produzido pelo `os-pattern-learner-agent` conforme `OS-PRIVACY-001`.
+
+**Evitar:** Tratar `01-analysis/<demanda>/` como uma área segura para versionamento só porque não contém arquivo binário ou imagem; assumir que a ausência de um campo específico (como nome de cliente) dispensa a regra — o conjunto do artefato pode ser suficiente para identificar a demanda.
+
+**Justificativa:** Identificada no primeiro teste ponta a ponta real da `.osFactory`: os artefatos de `01-analysis/<demanda>/` continham nome de cliente, responsável e identificadores reais de requisição, mas `01-analysis/<demanda>/` não estava coberto pela mesma proteção de `.gitignore` já aplicada a `00-inbox/` e `05-output/`. Esta regra formaliza a correção dessa lacuna, preservando `01-analysis/_os-models/` como exceção deliberada.
+
+**Origem:** `QUALITY_IMPROVEMENT`
 
