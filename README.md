@@ -48,9 +48,22 @@ Opcionalmente, a demanda pode conter:
 
 ## Conceito de saída
 
-O resultado esperado é uma **Especificação Funcional / Ordem de Serviço padronizada**, construída a partir dos insumos fornecidos e das regras, padrões, templates e exemplos mantidos pela própria factory.
+O resultado esperado é uma **Especificação Funcional / Ordem de Serviço padronizada**, construída a partir dos insumos fornecidos e das regras, padrões, templates e exemplos mantidos pela própria factory. Quando a validação retornar `PASS` ou `PASS_WITH_WARNINGS`, a OS é materializada também em **DOCX**, a partir do template oficial (`04-templates/docx/os-padrao.docx`); em `BLOCKED`, nenhum DOCX é gerado como documento final.
 
 A factory não deve inventar informações ausentes ou ampliar silenciosamente o escopo informado.
+
+## Uso
+
+```text
+Gerar OS para <demanda>
+```
+
+Entrada: `00-inbox/<demanda>/`
+Saída: `05-output/<demanda>/`
+
+Pipeline: intake → análise → documentação → validação → DOCX
+
+Ver `99-prompts/gerar-os.md` para o fluxo completo (agentes, gate de validação e materialização DOCX).
 
 ## Estrutura
 
@@ -64,7 +77,12 @@ A factory não deve inventar informações ausentes ou ampliar silenciosamente o
 │   ├── rules/
 │   └── examples/
 ├── 04-templates/
+│   └── docx/
+│       └── os-padrao.docx
 ├── 05-output/
+├── tools/
+├── tests/
+├── requirements.txt
 └── README.md
 ```
 
@@ -98,11 +116,15 @@ Exemplos reais utilizados como referência para evolução dos padrões da facto
 
 ### `04-templates/`
 
-Templates utilizados para geração dos documentos.
+Templates utilizados para geração dos documentos, incluindo `docx/os-padrao.docx` — fonte de verdade **visual** da OS (o Markdown continua sendo a fonte de verdade de **conteúdo**).
 
 ### `05-output/`
 
-Artefatos finais produzidos pela `.osFactory`.
+Artefatos finais produzidos pela `.osFactory` (Markdown, DOCX e preview de renderização).
+
+### `tools/`
+
+Scripts genéricos de materialização e auditoria: `build_os_docx.py` (Markdown → DOCX), `audit_os_visual_format.py` (auditoria estrutural do DOCX) e `render_docx_with_word.ps1` (DOCX → PDF → PNG via Word COM, para inspeção visual real). Nenhum script é específico de cliente ou demanda.
 
 ## Princípio
 

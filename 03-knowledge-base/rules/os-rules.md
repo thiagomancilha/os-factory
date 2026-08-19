@@ -448,6 +448,20 @@ Cada regra registra uma origem:
 
 **Origem:** `AGENT_CONTRACT`
 
+### OS-QA-003 — FUNCTIONAL_BLOCKED e OUTPUT_BLOCKED nunca se misturam
+
+**Classificação:** `MUST_NOT`
+
+**Objetivo:** Impedir que uma falha de conteúdo/especificação (a OS ainda não está funcionalmente pronta) seja confundida com uma falha de materialização (a OS está funcionalmente pronta, mas o DOCX não pôde ser gerado ou está visualmente inconsistente) — e vice-versa.
+
+**Regra:** `FUNCTIONAL_BLOCKED` é usado exclusivamente pelo `os-validator-agent`, antes de qualquer tentativa de materialização, para problemas de conteúdo (`OPEN_QUESTION` crítica, `FUNCTIONAL_CONFLICT` relevante, requisito não rastreável, escopo indefinido, e demais condições já cobertas por `OS-QA-001`). `OUTPUT_BLOCKED` é usado exclusivamente pelas ferramentas de materialização (`tools/build_os_docx.py`, `tools/audit_os_visual_format.py`, `tools/render_docx_with_word.ps1`) para falhas que ocorrem depois que o conteúdo já foi considerado `PASS` ou `PASS_WITH_WARNINGS` (template ausente, figura referenciada e ausente, erro ao salvar o DOCX, ou auditoria visual com finding bloqueante). Um resultado `BLOCKED` do `os-validator-agent` impede a própria tentativa de materialização — o orquestrador (`99-prompts/gerar-os.md`) não deve invocar `build_os_docx.py` nesse caso, e o script recusa a execução caso seja invocado mesmo assim com o status de validação informado.
+
+**Evitar:** Reportar uma falha de template ausente ou figura ausente como se fosse uma pendência de conteúdo; reportar uma `OPEN_QUESTION` crítica não respondida como se fosse um problema de materialização; gerar um DOCX "mesmo assim" quando a validação funcional retornou `BLOCKED`, apresentando-o como documento final aprovado.
+
+**Justificativa:** A materialização DOCX introduziu uma nova classe de falha (visual/técnica) que não existia quando só havia Markdown. Sem essa separação explícita, um problema de geração de arquivo poderia ser tratado como se fosse um problema da especificação (ou o inverso), levando a correções na etapa errada do pipeline.
+
+**Origem:** `QUALITY_IMPROVEMENT`
+
 ---
 
 ## OS-PRIVACY — Proteção de dados de clientes e modelos reais

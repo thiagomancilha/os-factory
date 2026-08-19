@@ -66,6 +66,18 @@ os-validator-agent
 01-analysis/<demanda>/validation.md
         ↓
 PASS / PASS_WITH_WARNINGS / BLOCKED
+        ↓ (somente PASS ou PASS_WITH_WARNINGS — ver seção 15)
+tools/build_os_docx.py
+        ↓
+05-output/<demanda>/OS-<demanda>.docx
+        ↓
+tools/audit_os_visual_format.py
+        ↓
+tools/render_docx_with_word.ps1 (quando Word COM disponível)
+        ↓
+05-output/<demanda>/preview/ (PDF + PNGs + contact sheet)
+        ↓
+OS final (Markdown + DOCX)
 ```
 
 O `os-pattern-learner-agent` **não** participa da geração normal de uma demanda. Ele só é executado explicitamente para aprendizado de modelos, fora deste pipeline.
@@ -128,11 +140,15 @@ A OS pode ser apresentada como:
 
 `OS pronta para revisão humana.`
 
+Prosseguir para a materialização DOCX (seção 15).
+
 **PASS_WITH_WARNINGS**
 
 A OS pode ser apresentada, mas o orquestrador deve mostrar claramente os warnings existentes, incluindo eventuais `DISCOVERY_ITEM` válidos e controlados e eventuais `ARCHITECTURAL_CONFLICT`/`DOCUMENTAL_CONFLICT` não bloqueantes (todos não bloqueantes por si só, mas informados por transparência — ver critério em `os-validator-agent.md`).
 
 Status: `OS pronta para revisão humana com ressalvas.`
+
+Prosseguir para a materialização DOCX (seção 15); os warnings são preservados no resumo final, não escondidos pela existência do DOCX.
 
 **BLOCKED**
 
@@ -148,6 +164,8 @@ A OS **não** pode ser apresentada como finalizada. Mostrar:
 - outras causas do bloqueio.
 
 Status: `OS bloqueada aguardando correções ou informações adicionais.`
+
+Este é um `FUNCTIONAL_BLOCKED` (ver `OS-QA-003` em `os-rules.md`). O orquestrador **não** invoca `tools/build_os_docx.py` neste caso — nenhum DOCX é gerado, e nenhum documento pode ser apresentado como OS final aprovada enquanto o resultado for `BLOCKED`.
 
 ## 8. Correção automática controlada
 
@@ -213,14 +231,22 @@ Artefatos intermediários:
 └── validation.md
 ```
 
-Artefato de saída:
+Artefato de saída (quando o gate permitir materialização — ver seção 15):
 
 ```text
 05-output/<demanda>/
-└── OS-<demanda>.md
+├── OS-<demanda>.md
+├── OS-<demanda>.docx
+└── preview/
+    ├── OS-<demanda>.pdf
+    ├── page-001.png
+    ├── page-002.png
+    └── contact-sheet.png
 ```
 
-`00-inbox/<demanda>/`, `01-analysis/<demanda>/` e `05-output/<demanda>/` são áreas operacionais locais de uma demanda — dados de runtime, ignorados pelo Git (ver `.gitignore` e `OS-PRIVACY-003`). Não colocar output final nem artefatos intermediários de demanda em pasta versionada. A única exceção é `01-analysis/_os-models/`, área especial de conhecimento sanitizado e aprovado para versionamento (ver `OS-PRIVACY-001`), usada exclusivamente pelo `os-pattern-learner-agent` fora deste pipeline. Não copiar insumos de cliente para a base de conhecimento (`OS-PRIVACY-001` / `OS-PRIVACY-002` / `OS-PRIVACY-003`).
+Se `BLOCKED`, apenas `OS-<demanda>.md` pode existir (quando o documenter já tiver rodado) — nunca `.docx` nem `preview/`.
+
+`00-inbox/<demanda>/`, `01-analysis/<demanda>/`, `05-output/<demanda>/` e `.tmp/` são áreas operacionais locais de uma demanda — dados de runtime, ignorados pelo Git (ver `.gitignore` e `OS-PRIVACY-003`). Não colocar output final nem artefatos intermediários de demanda em pasta versionada. A única exceção é `01-analysis/_os-models/`, área especial de conhecimento sanitizado e aprovado para versionamento (ver `OS-PRIVACY-001`), usada exclusivamente pelo `os-pattern-learner-agent` fora deste pipeline. Não copiar insumos de cliente para a base de conhecimento (`OS-PRIVACY-001` / `OS-PRIVACY-002` / `OS-PRIVACY-003`); isso vale também para imagens/figuras — `tools/build_os_docx.py` embute a figura no DOCX gerado (que fica em `05-output/`, já ignorado), nunca copia o arquivo de imagem para uma área versionada.
 
 ## 12. Resposta ao usuário
 
@@ -233,9 +259,14 @@ Intake: OK
 Análise funcional: OK
 OS Markdown: GERADA
 Validação: PASS | PASS_WITH_WARNINGS | BLOCKED
+DOCX: GERADO | OUTPUT_BLOCKED | NÃO GERADO (FUNCTIONAL_BLOCKED)
+Auditoria visual: PASS | PASS_WITH_WARNINGS | OUTPUT_BLOCKED
+Renderização: OK | VISUAL_VALIDATION_NOT_EXECUTED (<dependência ausente>)
 
 Output:
 05-output/<demanda>/OS-<demanda>.md
+05-output/<demanda>/OS-<demanda>.docx
+05-output/<demanda>/preview/
 
 Validação:
 01-analysis/<demanda>/validation.md
@@ -284,11 +315,49 @@ O orquestrador:
 - não altera arquivos em `00-inbox/`;
 - não move documentos de cliente para áreas versionadas (`01-analysis/<demanda>/` inclusa — ver `OS-PRIVACY-003`);
 - não cria regras permanentes automaticamente;
-- não altera agentes durante a execução de uma OS.
+- não altera agentes durante a execução de uma OS;
+- não cria script de materialização específico de cliente ou demanda — usa sempre `tools/build_os_docx.py` de forma genérica;
+- não corrige manualmente o DOCX final — qualquer ajuste visual acontece no template (`04-templates/docx/os-padrao.docx`) ou no gerador (`tools/build_os_docx.py`), nunca editando o `.docx` gerado diretamente.
+
+## 15. Materialização DOCX (pós-validação)
+
+Só é executada quando a validação (seção 6) retornar `PASS` ou `PASS_WITH_WARNINGS` (ver seção 7). Em `BLOCKED`, esta seção inteira é pulada.
+
+```text
+python tools/build_os_docx.py \
+  --demand <demanda> \
+  --markdown 05-output/<demanda>/OS-<demanda>.md \
+  --template 04-templates/docx/os-padrao.docx \
+  --output 05-output/<demanda>/OS-<demanda>.docx \
+  --validation-status PASS_WITH_WARNINGS
+```
+
+Resultado do gerador:
+
+- `OK` → prosseguir para auditoria visual.
+- `OUTPUT_BLOCKED` (template ausente, figura ausente, erro de geração) → reportar a causa exata; não inventar a figura nem prosseguir sem ela; não apresentar OS-<demanda>.md como "sem DOCX disponível por enquanto" — deixar claro que é uma falha de materialização, distinta de um problema funcional (`OS-QA-003`).
+- `FUNCTIONAL_BLOCKED` (o script recebeu `--validation-status BLOCKED`) → nunca deveria ocorrer se a seção 7 foi respeitada; se ocorrer, é um erro de orquestração a corrigir, não uma pendência de conteúdo.
+
+Em seguida, executar a auditoria visual estrutural:
+
+```text
+python tools/audit_os_visual_format.py --docx 05-output/<demanda>/OS-<demanda>.docx
+```
+
+- `PASS` ou `PASS_WITH_WARNINGS` → o DOCX pode seguir para renderização/preview.
+- `OUTPUT_BLOCKED` → corrigir o template ou o gerador (nunca o `.docx` manualmente) e regenerar; máximo de 3 ciclos de ajuste visual (ver `tools/render_docx_with_word.ps1`).
+
+Por fim, quando Word COM e as dependências necessárias estiverem disponíveis, renderizar para inspeção visual real:
+
+```text
+pwsh tools/render_docx_with_word.ps1 -InputDocx 05-output/<demanda>/OS-<demanda>.docx -OutputDir 05-output/<demanda>/preview
+```
+
+Se a renderização não puder ser executada (Word COM ou `pdftoppm` ausentes), registrar `VISUAL_VALIDATION_NOT_EXECUTED` e informar exatamente qual dependência faltou — nunca apresentar o DOCX como visualmente validado sem essa etapa ter rodado.
 
 ## Estado atual do pipeline
 
-Esta versão gera **Markdown**. A materialização em **DOCX** será adicionada posteriormente como uma etapa pós-validação, quando um template DOCX oficial e um gerador correspondente existirem na `.osFactory`. Não simular DOCX enquanto essa capability não existir.
+Esta versão gera **Markdown** e **DOCX**. A materialização DOCX depende de `04-templates/docx/os-padrao.docx` (fonte de verdade visual) e `tools/build_os_docx.py` (gerador genérico); a validação visual completa depende de Word COM (via `tools/render_docx_with_word.ps1`) ou de um ambiente equivalente com as dependências necessárias — quando indisponível, reportar `VISUAL_VALIDATION_NOT_EXECUTED` em vez de simular o resultado.
 
 ## Princípio central
 

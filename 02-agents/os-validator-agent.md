@@ -68,6 +68,8 @@ Usar quando existir pelo menos uma condição como:
 - perda de requisito importante presente nos insumos;
 - `DISCOVERY_ITEM` sem etapa de resolução prevista, que pode alterar materialmente o escopo, que na prática é uma decisão de negócio ou um conflito entre fontes, ou que foi usado apenas como mecanismo para evitar `BLOCKED`.
 
+Este `BLOCKED` é sempre `FUNCTIONAL_BLOCKED` (ver `OS-QA-003` em `os-rules.md`): um problema de conteúdo/especificação, avaliado antes de qualquer materialização. Ele nunca deve ser confundido com `OUTPUT_BLOCKED` (falha de materialização — template ausente, figura ausente, erro de geração do DOCX, auditoria visual bloqueante), que só pode ocorrer depois que este agente já tiver retornado `PASS` ou `PASS_WITH_WARNINGS`.
+
 ### DISCOVERY_ITEM — critério específico de bloqueio
 
 `DISCOVERY_ITEM` **não é bloqueante automaticamente**. O agente deve avaliar cada um individualmente:

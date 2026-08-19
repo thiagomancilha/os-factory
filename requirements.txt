@@ -1,0 +1,5 @@
+# Dependências para a capability de materialização DOCX da .osFactory
+# (tools/build_os_docx.py, tools/audit_os_visual_format.py).
+# Versões alinhadas com as já comprovadas na .proposalFactory.
+python-docx==1.2.0
+Pillow==12.3.0
